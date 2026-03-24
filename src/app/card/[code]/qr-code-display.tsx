@@ -9,12 +9,13 @@ export default function QrCodeDisplay({ code }: { code: string }) {
   useEffect(() => {
     if (canvasRef.current) {
       QRCode.toCanvas(canvasRef.current, code, {
-        width: 200,
-        margin: 2,
-        color: { dark: "#000000", light: "#ffffff" },
+        width: 180,
+        margin: 1,
+        color: { dark: "#1a1a2e", light: "#ffffff" },
+        errorCorrectionLevel: "M",
       });
     }
   }, [code]);
 
-  return <canvas ref={canvasRef} className="mx-auto" />;
+  return <canvas ref={canvasRef} className="mx-auto rounded-lg" />;
 }

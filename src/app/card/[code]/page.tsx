@@ -1,4 +1,4 @@
-import { CreditCard } from "lucide-react";
+import { Crown, Sparkles } from "lucide-react";
 import { notFound } from "next/navigation";
 import QrCodeDisplay from "./qr-code-display";
 
@@ -48,57 +48,116 @@ export default async function CardPage({ params }: { params: Promise<{ code: str
 
   if (!card) notFound();
 
+  const progress = Math.round((card.currentStamps / card.program.stampsRequired) * 100);
+  const remaining = card.program.stampsRequired - card.currentStamps;
+  const cardColor = card.program.cardColor;
+
   return (
-    <div className="min-h-screen flex items-center justify-center p-4 bg-gray-50">
-      <div className="w-full max-w-sm">
-        {/* Card */}
-        <div
-          className="rounded-2xl p-6 text-white shadow-xl"
-          style={{ backgroundColor: card.program.cardColor }}
-        >
-          <div className="flex items-center gap-2 mb-1">
-            <CreditCard className="h-5 w-5" />
-            <span className="font-semibold">{card.program.merchant.businessName}</span>
-          </div>
-          <div className="text-sm text-white/70 mb-6">{card.program.name}</div>
+    <div
+      className="card-page-bg flex flex-col items-center justify-center px-5 py-10"
+      style={{
+        "--card-glow-color": cardColor,
+        overscrollBehavior: "contain",
+        touchAction: "manipulation",
+      } as React.CSSProperties}
+    >
+      {/* Ambient glow */}
+      <div className="card-page-glow" />
 
-          {/* Stamps */}
-          <div className="flex gap-2 flex-wrap mb-4">
-            {Array.from({ length: card.program.stampsRequired }).map((_, i) => (
-              <div
-                key={i}
-                className={`w-9 h-9 rounded-full flex items-center justify-center text-sm font-bold ${
-                  i < card.currentStamps
-                    ? "bg-white/30 text-white"
-                    : "border-2 border-white/30"
-                }`}
-              >
-                {i < card.currentStamps ? "✓" : i + 1}
+      <div className="relative z-10 w-full max-w-[380px] space-y-5">
+        {/* The Card */}
+        <div className="premium-card" style={{ backgroundColor: cardColor }}>
+          <div className="relative z-[1] p-7 pb-6">
+            {/* Top row: Merchant + Rewards badge */}
+            <div className="flex items-start justify-between mb-6">
+              <div>
+                <h1 className="text-[15px] font-semibold tracking-wide text-white/90 uppercase">
+                  {card.program.merchant.businessName}
+                </h1>
+                <p className="text-[13px] text-white/45 mt-0.5 font-medium">
+                  {card.program.name}
+                </p>
               </div>
-            ))}
-          </div>
-
-          <div className="text-sm text-white/80">
-            {card.currentStamps}/{card.program.stampsRequired} stamps → {card.program.rewardText}
-          </div>
-          {card.rewardsEarned > 0 && (
-            <div className="mt-2 text-sm font-medium">
-              {card.rewardsEarned} reward{card.rewardsEarned > 1 ? "s" : ""} earned!
+              {card.rewardsEarned > 0 && (
+                <div className="reward-badge flex items-center gap-1.5 bg-amber-400/20 text-amber-200 px-3 py-1.5 rounded-full text-xs font-bold border border-amber-400/20">
+                  <Crown className="h-3 w-3" />
+                  {card.rewardsEarned}
+                </div>
+              )}
             </div>
-          )}
+
+            {/* Stamp Grid */}
+            <div className="grid grid-cols-5 gap-2.5 mb-6">
+              {Array.from({ length: card.program.stampsRequired }).map((_, i) => {
+                const isFilled = i < card.currentStamps;
+                return (
+                  <div
+                    key={i}
+                    className={`stamp-cell aspect-square rounded-xl flex items-center justify-center ${
+                      isFilled ? "stamp-filled" : "stamp-empty"
+                    }`}
+                    style={{ animationDelay: `${0.6 + i * 0.04}s` }}
+                  >
+                    {isFilled ? (
+                      <Sparkles className="h-4 w-4 text-white drop-shadow-sm" />
+                    ) : (
+                      <span className="text-[11px] font-bold text-white/20">{i + 1}</span>
+                    )}
+                  </div>
+                );
+              })}
+            </div>
+
+            {/* Progress Bar */}
+            <div className="mb-4">
+              <div className="progress-track h-1.5">
+                <div
+                  className="progress-fill h-full"
+                  style={{ width: `${progress}%` }}
+                />
+              </div>
+            </div>
+
+            {/* Status Text */}
+            <div className="flex items-baseline justify-between">
+              <p className="text-[13px] text-white/50 font-medium">
+                <span className="text-white/90 text-[15px] font-bold tabular-nums">
+                  {card.currentStamps}
+                </span>
+                <span className="mx-0.5">/</span>
+                {card.program.stampsRequired}
+              </p>
+              <p className="text-[12px] text-white/40 font-medium">
+                {remaining > 0 ? (
+                  <>
+                    {remaining} more for{" "}
+                    <span className="text-white/70">{card.program.rewardText}</span>
+                  </>
+                ) : (
+                  <span className="text-amber-300/80 font-semibold">Reward unlocked!</span>
+                )}
+              </p>
+            </div>
+          </div>
         </div>
 
-        {/* QR Code */}
-        <div className="mt-6 bg-white rounded-2xl p-6 shadow-sm text-center">
-          <p className="text-sm text-gray-500 mb-4">Show this QR code at checkout</p>
-          <QrCodeDisplay code={card.qrCode} />
-          <p className="mt-3 text-xs text-gray-400 font-mono">{card.qrCode}</p>
+        {/* QR Code Section */}
+        <div className="qr-glass p-6 text-center">
+          <p className="text-[11px] uppercase tracking-[0.15em] text-white/30 font-semibold mb-4">
+            Show at checkout
+          </p>
+          <div className="bg-white rounded-2xl p-4 inline-block mx-auto">
+            <QrCodeDisplay code={card.qrCode} />
+          </div>
+          <p className="mt-4 text-[11px] text-white/20 font-mono tracking-wider">
+            {card.qrCode}
+          </p>
         </div>
 
-        {/* Customer info */}
-        <div className="mt-4 text-center text-sm text-gray-400">
+        {/* Customer identifier */}
+        <p className="text-center text-[12px] text-white/20 font-medium tracking-wide">
           {card.customer.name || card.customer.phone}
-        </div>
+        </p>
       </div>
     </div>
   );
