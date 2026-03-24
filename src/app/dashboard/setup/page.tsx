@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { CreditCard, Loader2 } from "lucide-react";
+import { Loader2, Sparkles } from "lucide-react";
 import { api } from "@/lib/api";
 import { useSWRConfig } from "swr";
 
@@ -121,27 +121,53 @@ export default function SetupPage() {
         {/* Preview */}
         <div>
           <label className="block text-sm font-medium mb-3">Preview</label>
-          <div
-            className="rounded-2xl p-6 text-white"
-            style={{ backgroundColor: cardColor }}
-          >
-            <div className="flex items-center gap-2 mb-4">
-              <CreditCard className="h-5 w-5" />
-              <span className="font-semibold">{name || "Your Program"}</span>
-            </div>
-            <div className="flex gap-1.5 mb-3">
-              {Array.from({ length: parseInt(stampsRequired) || 8 }).map((_, i) => (
-                <div
-                  key={i}
-                  className="w-7 h-7 rounded-full border-2 border-white/40 flex items-center justify-center text-xs"
-                >
-                  {i < 3 ? "✓" : ""}
+          <div className="rounded-2xl bg-[#0d0d12] p-6" style={{ "--card-glow-color": cardColor } as React.CSSProperties}>
+            <div className="premium-card" style={{ backgroundColor: cardColor }}>
+              <div className="relative z-[1] p-6">
+                <h3 className="text-[14px] font-semibold tracking-wide text-white/90 uppercase">
+                  {name || "Your Program"}
+                </h3>
+                <p className="text-[12px] text-white/40 mt-0.5 mb-5 font-medium">
+                  {rewardText || "Your reward"}
+                </p>
+
+                <div className="grid grid-cols-5 gap-2 mb-4">
+                  {Array.from({ length: Math.min(parseInt(stampsRequired) || 8, 20) }).map((_, i) => (
+                    <div
+                      key={i}
+                      className={`aspect-square rounded-lg flex items-center justify-center ${
+                        i < 3 ? "stamp-filled" : "stamp-empty"
+                      }`}
+                    >
+                      {i < 3 ? (
+                        <Sparkles className="h-3.5 w-3.5 text-white drop-shadow-sm" />
+                      ) : (
+                        <span className="text-[10px] font-bold text-white/20">{i + 1}</span>
+                      )}
+                    </div>
+                  ))}
                 </div>
-              ))}
+
+                <div className="progress-track h-1.5 mb-3">
+                  <div
+                    className="progress-fill h-full"
+                    style={{ width: `${Math.round((3 / (parseInt(stampsRequired) || 8)) * 100)}%` }}
+                  />
+                </div>
+
+                <div className="flex items-baseline justify-between">
+                  <p className="text-[12px] text-white/50 font-medium">
+                    <span className="text-white/90 text-[14px] font-bold">3</span>
+                    <span className="mx-0.5">/</span>
+                    {parseInt(stampsRequired) || 8}
+                  </p>
+                  <p className="text-[11px] text-white/40">
+                    {(parseInt(stampsRequired) || 8) - 3} more for{" "}
+                    <span className="text-white/70">{rewardText || "reward"}</span>
+                  </p>
+                </div>
+              </div>
             </div>
-            <p className="text-sm text-white/70">
-              {parseInt(stampsRequired) || 8} stamps → {rewardText || "Your reward"}
-            </p>
           </div>
         </div>
 

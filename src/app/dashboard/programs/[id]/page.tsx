@@ -6,13 +6,13 @@ import Link from "next/link";
 import useSWR, { useSWRConfig } from "swr";
 import {
   ArrowLeft,
-  CreditCard,
   Loader2,
   Save,
   Users,
   Stamp,
   Gift,
   Pencil,
+  Sparkles,
   X,
 } from "lucide-react";
 import { api } from "@/lib/api";
@@ -169,28 +169,68 @@ export default function ProgramDetailPage() {
       )}
 
       {/* Card preview */}
-      <div
-        className="rounded-2xl p-6 text-white mb-6"
-        style={{ backgroundColor: editing ? editColor : program.cardColor }}
-      >
-        <div className="flex items-center gap-2 mb-4">
-          <CreditCard className="h-5 w-5" />
-          <span className="font-semibold">{editing ? editName || "Program Name" : program.name}</span>
-        </div>
-        <div className="flex gap-1.5 mb-3 flex-wrap">
-          {Array.from({ length: editing ? editStamps : program.stampsRequired }).map((_, i) => (
-            <div
-              key={i}
-              className="w-7 h-7 rounded-full border-2 border-white/40 flex items-center justify-center text-xs"
-            >
-              {i < 3 ? "✓" : ""}
+      {(() => {
+        const previewName = editing ? editName || "Program Name" : program.name;
+        const previewStamps = editing ? editStamps : program.stampsRequired;
+        const previewReward = editing ? editReward || "Reward" : program.rewardText;
+        const previewColor = editing ? editColor : program.cardColor;
+        const filledCount = editing ? 3 : Math.min(3, previewStamps);
+        const progress = Math.round((filledCount / previewStamps) * 100);
+        const remaining = previewStamps - filledCount;
+
+        return (
+          <div className="rounded-2xl bg-[#0d0d12] p-6 mb-6" style={{ "--card-glow-color": previewColor } as React.CSSProperties}>
+            <div className="premium-card" style={{ backgroundColor: previewColor }}>
+              <div className="relative z-[1] p-6">
+                <h3 className="text-[14px] font-semibold tracking-wide text-white/90 uppercase">
+                  {previewName}
+                </h3>
+                <p className="text-[12px] text-white/40 mt-0.5 mb-5 font-medium">
+                  {previewReward}
+                </p>
+
+                <div className="grid grid-cols-5 gap-2 mb-4">
+                  {Array.from({ length: Math.min(previewStamps, 20) }).map((_, i) => (
+                    <div
+                      key={i}
+                      className={`aspect-square rounded-lg flex items-center justify-center ${
+                        i < filledCount ? "stamp-filled" : "stamp-empty"
+                      }`}
+                    >
+                      {i < filledCount ? (
+                        <Sparkles className="h-3.5 w-3.5 text-white drop-shadow-sm" />
+                      ) : (
+                        <span className="text-[10px] font-bold text-white/20">{i + 1}</span>
+                      )}
+                    </div>
+                  ))}
+                </div>
+
+                <div className="progress-track h-1.5 mb-3">
+                  <div className="progress-fill h-full" style={{ width: `${progress}%` }} />
+                </div>
+
+                <div className="flex items-baseline justify-between">
+                  <p className="text-[12px] text-white/50 font-medium">
+                    <span className="text-white/90 text-[14px] font-bold">{filledCount}</span>
+                    <span className="mx-0.5">/</span>
+                    {previewStamps}
+                  </p>
+                  <p className="text-[11px] text-white/40">
+                    {remaining > 0 ? (
+                      <>
+                        {remaining} more for <span className="text-white/70">{previewReward}</span>
+                      </>
+                    ) : (
+                      <span className="text-amber-300/80 font-semibold">Reward unlocked!</span>
+                    )}
+                  </p>
+                </div>
+              </div>
             </div>
-          ))}
-        </div>
-        <p className="text-sm text-white/70">
-          {editing ? editStamps : program.stampsRequired} stamps &rarr; {editing ? editReward || "Reward" : program.rewardText}
-        </p>
-      </div>
+          </div>
+        );
+      })()}
 
       {/* Edit form */}
       {editing && (
