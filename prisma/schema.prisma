@@ -1,0 +1,91 @@
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model Merchant {
+  id                 String   @id @default(uuid())
+  email              String   @unique
+  passwordHash       String   @map("password_hash")
+  businessName       String   @map("business_name")
+  phone              String?
+  logoUrl            String?  @map("logo_url")
+  address            String?
+  city               String?
+  stripeCustomerId   String?  @map("stripe_customer_id")
+  subscriptionStatus String   @default("trial") @map("subscription_status")
+  trialEndsAt        DateTime? @map("trial_ends_at")
+  createdAt          DateTime @default(now()) @map("created_at")
+
+  programs Program[]
+  stamps   Stamp[]
+
+  @@map("merchants")
+}
+
+model Program {
+  id              String   @id @default(uuid())
+  merchantId      String   @map("merchant_id")
+  name            String
+  stampsRequired  Int      @map("stamps_required")
+  rewardText      String   @map("reward_text")
+  isActive        Boolean  @default(true) @map("is_active")
+  cardColor       String   @default("#6C63FF") @map("card_color")
+  textColor       String   @default("#FFFFFF") @map("text_color")
+  iconUrl         String?  @map("icon_url")
+  createdAt       DateTime @default(now()) @map("created_at")
+
+  merchant Merchant @relation(fields: [merchantId], references: [id], onDelete: Cascade)
+  cards    Card[]
+
+  @@map("programs")
+}
+
+model Customer {
+  id        String   @id @default(uuid())
+  phone     String   @unique
+  name      String?
+  createdAt DateTime @default(now()) @map("created_at")
+
+  cards Card[]
+
+  @@map("customers")
+}
+
+model Card {
+  id             String   @id @default(uuid())
+  customerId     String   @map("customer_id")
+  programId      String   @map("program_id")
+  currentStamps  Int      @default(0) @map("current_stamps")
+  totalStamps    Int      @default(0) @map("total_stamps")
+  rewardsEarned  Int      @default(0) @map("rewards_earned")
+  qrCode         String   @unique @map("qr_code")
+  applePassSerial  String? @map("apple_pass_serial")
+  applePushToken   String? @map("apple_push_token")
+  googlePassId     String? @map("google_pass_id")
+  createdAt      DateTime @default(now()) @map("created_at")
+
+  customer Customer @relation(fields: [customerId], references: [id])
+  program  Program  @relation(fields: [programId], references: [id])
+  stamps   Stamp[]
+
+  @@unique([customerId, programId])
+  @@map("cards")
+}
+
+model Stamp {
+  id         String   @id @default(uuid())
+  cardId     String   @map("card_id")
+  merchantId String   @map("merchant_id")
+  stampType  String   @map("stamp_type") // 'stamp' or 'reward_redeemed'
+  createdAt  DateTime @default(now()) @map("created_at")
+
+  card     Card     @relation(fields: [cardId], references: [id])
+  merchant Merchant @relation(fields: [merchantId], references: [id])
+
+  @@map("stamps")
+}
