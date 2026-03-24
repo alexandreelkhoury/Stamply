@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { Users, Stamp, Gift, TrendingUp, Loader2 } from "lucide-react";
 import Link from "next/link";
+import { api } from "@/lib/api";
 
 interface Analytics {
   totalCustomers: number;
@@ -26,12 +27,12 @@ export default function DashboardPage() {
 
   useEffect(() => {
     Promise.all([
-      fetch("/api/analytics").then((r) => r.json()),
-      fetch("/api/programs").then((r) => r.json()),
+      api.get("/api/analytics"),
+      api.get("/api/programs"),
     ])
-      .then(([analytics, programsData]) => {
-        setData(analytics);
-        setPrograms(programsData.programs || []);
+      .then(([analyticsRes, programsRes]) => {
+        setData(analyticsRes.data);
+        setPrograms(programsRes.data.programs || []);
       })
       .finally(() => setLoading(false));
   }, []);

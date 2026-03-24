@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState, useCallback } from "react";
 import { Camera, Check, AlertCircle, Gift, X } from "lucide-react";
+import { api } from "@/lib/api";
 
 interface StampResult {
   customerName: string;
@@ -12,47 +13,75 @@ interface StampResult {
   programName: string;
 }
 
+function playTone(frequency: number, duration: number, type: OscillatorType = "sine") {
+  try {
+    const ctx = new (window.AudioContext || (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext)();
+    const osc = ctx.createOscillator();
+    const gain = ctx.createGain();
+    osc.type = type;
+    osc.frequency.value = frequency;
+    gain.gain.value = 0.3;
+    gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + duration);
+    osc.connect(gain);
+    gain.connect(ctx.destination);
+    osc.start();
+    osc.stop(ctx.currentTime + duration);
+  } catch {
+    // Audio not available
+  }
+}
+
+function playSuccessSound() {
+  playTone(880, 0.15);
+  setTimeout(() => playTone(1108, 0.2), 120);
+}
+
+function playErrorSound() {
+  playTone(300, 0.25, "square");
+  setTimeout(() => playTone(220, 0.3, "square"), 200);
+}
+
 export default function ScanPage() {
-  const videoRef = useRef<HTMLVideoElement>(null);
-  const canvasRef = useRef<HTMLCanvasElement>(null);
+  const scannerContainerId = "qr-scanner-container";
+  const html5QrRef = useRef<unknown>(null);
   const [scanning, setScanning] = useState(false);
   const [result, setResult] = useState<StampResult | null>(null);
   const [error, setError] = useState("");
   const [processing, setProcessing] = useState(false);
-  const streamRef = useRef<MediaStream | null>(null);
-  const scannerRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const processingRef = useRef(false);
 
-  const stopCamera = useCallback(() => {
-    if (streamRef.current) {
-      streamRef.current.getTracks().forEach((t) => t.stop());
-      streamRef.current = null;
-    }
-    if (scannerRef.current) {
-      clearInterval(scannerRef.current);
-      scannerRef.current = null;
+  const stopCamera = useCallback(async () => {
+    if (html5QrRef.current) {
+      try {
+        const scanner = html5QrRef.current as { isScanning: boolean; stop: () => Promise<void>; clear: () => void };
+        if (scanner.isScanning) {
+          await scanner.stop();
+        }
+        scanner.clear();
+      } catch {
+        // Ignore cleanup errors
+      }
+      html5QrRef.current = null;
     }
     setScanning(false);
   }, []);
 
   const processQrCode = useCallback(async (qrCode: string) => {
-    if (processing) return;
+    if (processingRef.current) return;
+    processingRef.current = true;
     setProcessing(true);
-    stopCamera();
+    await stopCamera();
 
     try {
-      const res = await fetch("/api/stamps", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ qrCode }),
-      });
+      const { data, ok } = await api.post<{ stamp: StampResult; error?: string }>("/api/stamps", { qrCode });
 
-      const data = await res.json();
-
-      if (!res.ok) {
-        setError(data.error || "Failed to stamp");
+      if (!ok) {
+        playErrorSound();
+        setError((data as { error?: string }).error || "Failed to stamp");
         return;
       }
 
+      playSuccessSound();
       setResult(data.stamp);
 
       // Auto-dismiss after 4 seconds
@@ -61,56 +90,60 @@ export default function ScanPage() {
         setError("");
       }, 4000);
     } catch {
+      playErrorSound();
       setError("Something went wrong");
     } finally {
+      processingRef.current = false;
       setProcessing(false);
     }
-  }, [processing, stopCamera]);
+  }, [stopCamera]);
 
   async function startCamera() {
     setError("");
     setResult(null);
 
     try {
-      const stream = await navigator.mediaDevices.getUserMedia({
-        video: { facingMode: "environment" },
-      });
+      const { Html5Qrcode } = await import("html5-qrcode");
+      const scanner = new Html5Qrcode(scannerContainerId);
+      html5QrRef.current = scanner;
 
-      streamRef.current = stream;
-      if (videoRef.current) {
-        videoRef.current.srcObject = stream;
-        await videoRef.current.play();
-      }
+      await scanner.start(
+        { facingMode: "environment" },
+        {
+          fps: 10,
+          qrbox: { width: 250, height: 250 },
+          aspectRatio: 1,
+        },
+        (decodedText) => {
+          processQrCode(decodedText);
+        },
+        () => {
+          // QR not found in this frame
+        }
+      );
 
       setScanning(true);
-
-      // Use BarcodeDetector if available, otherwise fall back
-      if ("BarcodeDetector" in window) {
-        const detector = new (window as unknown as { BarcodeDetector: new (opts: { formats: string[] }) => { detect: (source: HTMLVideoElement) => Promise<Array<{ rawValue: string }>> } }).BarcodeDetector({
-          formats: ["qr_code"],
-        });
-
-        scannerRef.current = setInterval(async () => {
-          if (videoRef.current && videoRef.current.readyState === videoRef.current.HAVE_ENOUGH_DATA) {
-            try {
-              const barcodes = await detector.detect(videoRef.current);
-              if (barcodes.length > 0) {
-                processQrCode(barcodes[0].rawValue);
-              }
-            } catch {
-              // Ignore detection errors
-            }
-          }
-        }, 300);
-      }
     } catch {
       setError("Could not access camera. Please allow camera access.");
     }
   }
 
   useEffect(() => {
-    return () => stopCamera();
-  }, [stopCamera]);
+    return () => {
+      if (html5QrRef.current) {
+        const scanner = html5QrRef.current as { isScanning: boolean; stop: () => Promise<void>; clear: () => void };
+        try {
+          if (scanner.isScanning) {
+            scanner.stop().then(() => scanner.clear()).catch(() => {});
+          } else {
+            scanner.clear();
+          }
+        } catch {
+          // Ignore
+        }
+      }
+    };
+  }, []);
 
   // Manual QR code input as fallback
   const [manualCode, setManualCode] = useState("");
@@ -149,7 +182,7 @@ export default function ScanPage() {
                         : "border-2 border-white/30"
                     }`}
                   >
-                    {i < result.currentStamps ? "✓" : ""}
+                    {i < result.currentStamps ? "\u2713" : ""}
                   </div>
                 ))}
               </div>
@@ -174,13 +207,13 @@ export default function ScanPage() {
 
       {/* Camera view */}
       <div className="relative rounded-2xl overflow-hidden bg-black aspect-square mb-6">
-        <video ref={videoRef} className="w-full h-full object-cover" playsInline muted />
-        <canvas ref={canvasRef} className="hidden" />
+        <div id={scannerContainerId} className="w-full h-full" />
         {!scanning && (
           <div className="absolute inset-0 flex flex-col items-center justify-center gap-4">
             <Camera className="h-12 w-12 text-white/50" />
             <button
               onClick={startCamera}
+              disabled={processing}
               className="bg-primary text-white px-6 py-3 rounded-xl font-medium text-lg hover:bg-primary-dark transition"
             >
               Start Scanner

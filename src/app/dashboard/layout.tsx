@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { useRouter, usePathname } from "next/navigation";
 import Link from "next/link";
+import { api } from "@/lib/api";
 import {
   CreditCard,
   LayoutDashboard,
@@ -26,12 +27,14 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    fetch("/api/auth/me")
-      .then((res) => {
-        if (!res.ok) throw new Error("Not authenticated");
-        return res.json();
+    api.get("/api/auth/me")
+      .then(({ data, ok, status }) => {
+        if (!ok || status === 401) {
+          router.push("/login");
+          return;
+        }
+        setMerchant(data.merchant);
       })
-      .then((data) => setMerchant(data.merchant))
       .catch(() => router.push("/login"))
       .finally(() => setLoading(false));
   }, [router]);
@@ -51,8 +54,8 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
     { href: "/dashboard/settings", label: "Settings", icon: Settings },
   ];
 
-  async function handleLogout() {
-    await fetch("/api/auth/logout", { method: "POST" });
+  function handleLogout() {
+    api.clearToken();
     router.push("/login");
   }
 

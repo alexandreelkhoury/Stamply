@@ -4,6 +4,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { CreditCard, Loader2 } from "lucide-react";
+import { api } from "@/lib/api";
 
 export default function LoginPage() {
   const router = useRouter();
@@ -18,18 +19,14 @@ export default function LoginPage() {
     setLoading(true);
 
     try {
-      const res = await fetch("/api/auth/login", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email, password }),
-      });
+      const { data, ok } = await api.post("/api/auth/login", { email, password });
 
-      if (!res.ok) {
-        const data = await res.json();
+      if (!ok) {
         setError(data.error || "Login failed");
         return;
       }
 
+      api.setToken(data.token);
       router.push("/dashboard");
     } catch {
       setError("Something went wrong");

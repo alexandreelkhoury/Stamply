@@ -1,20 +1,50 @@
-import { db } from "@/lib/db";
 import { CreditCard } from "lucide-react";
 import { notFound } from "next/navigation";
 import QrCodeDisplay from "./qr-code-display";
 
+const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000";
+
+interface CardData {
+  card: {
+    id: string;
+    qrCode: string;
+    currentStamps: number;
+    totalStamps: number;
+    rewardsEarned: number;
+    program: {
+      name: string;
+      stampsRequired: number;
+      rewardText: string;
+      cardColor: string;
+      textColor: string;
+      merchant: {
+        businessName: string;
+        logoUrl: string | null;
+      };
+    };
+    customer: {
+      name: string | null;
+      phone: string;
+    };
+  };
+}
+
+async function getCard(code: string) {
+  try {
+    const res = await fetch(`${API_URL}/api/cards/${code}/public`, {
+      next: { revalidate: 0 },
+    });
+    if (!res.ok) return null;
+    const data: CardData = await res.json();
+    return data.card;
+  } catch {
+    return null;
+  }
+}
+
 export default async function CardPage({ params }: { params: Promise<{ code: string }> }) {
   const { code } = await params;
-
-  const card = await db.card.findUnique({
-    where: { qrCode: code },
-    include: {
-      customer: { select: { name: true, phone: true } },
-      program: {
-        include: { merchant: { select: { businessName: true, logoUrl: true } } },
-      },
-    },
-  });
+  const card = await getCard(code);
 
   if (!card) notFound();
 

@@ -22,6 +22,13 @@ export const metadata: Metadata = {
   title: "Stamply — Digital Loyalty Cards for Local Businesses",
   description:
     "Replace punch cards with digital loyalty cards your customers add to Apple & Google Wallet. Set up in 3 minutes. No app required.",
+  manifest: "/manifest.json",
+  themeColor: "#6C63FF",
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: "black-translucent",
+    title: "Stamply",
+  },
 };
 
 export default function RootLayout({

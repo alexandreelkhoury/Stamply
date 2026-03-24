@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { CreditCard, Loader2 } from "lucide-react";
+import { api } from "@/lib/api";
 
 const PRESET_COLORS = [
   "#6C63FF", "#3B82F6", "#10B981", "#F59E0B", "#EF4444",
@@ -24,14 +25,9 @@ export default function SetupPage() {
     setLoading(true);
 
     try {
-      const res = await fetch("/api/programs", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ name, stampsRequired, rewardText, cardColor }),
-      });
+      const { ok, data } = await api.post("/api/programs", { name, stampsRequired, rewardText, cardColor });
 
-      if (!res.ok) {
-        const data = await res.json();
+      if (!ok) {
         setError(data.error || "Failed to create program");
         return;
       }

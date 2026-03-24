@@ -4,6 +4,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { CreditCard, Loader2 } from "lucide-react";
+import { api } from "@/lib/api";
 
 export default function RegisterPage() {
   const router = useRouter();
@@ -19,18 +20,14 @@ export default function RegisterPage() {
     setLoading(true);
 
     try {
-      const res = await fetch("/api/auth/register", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email, password, businessName }),
-      });
+      const { data, ok } = await api.post("/api/auth/register", { email, password, businessName });
 
-      if (!res.ok) {
-        const data = await res.json();
+      if (!ok) {
         setError(data.error || "Registration failed");
         return;
       }
 
+      api.setToken(data.token);
       router.push("/dashboard/setup");
     } catch {
       setError("Something went wrong");

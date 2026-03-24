@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { UserPlus, Loader2, Phone } from "lucide-react";
+import { api } from "@/lib/api";
 
 interface Program {
   id: string;
@@ -18,9 +19,8 @@ export default function CustomersPage() {
   const [error, setError] = useState("");
 
   useEffect(() => {
-    fetch("/api/programs")
-      .then((r) => r.json())
-      .then((data) => {
+    api.get("/api/programs")
+      .then(({ data }) => {
         setPrograms(data.programs || []);
         if (data.programs?.length > 0) {
           setSelectedProgram(data.programs[0].id);
@@ -35,19 +35,13 @@ export default function CustomersPage() {
     setLoading(true);
 
     try {
-      const res = await fetch("/api/customers", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          phone: phone.startsWith("+") ? phone : `+${phone}`,
-          name: name || undefined,
-          programId: selectedProgram,
-        }),
+      const { data, ok } = await api.post("/api/customers", {
+        phone: phone.startsWith("+") ? phone : `+${phone}`,
+        name: name || undefined,
+        programId: selectedProgram,
       });
 
-      const data = await res.json();
-
-      if (!res.ok) {
+      if (!ok) {
         setError(data.error || "Failed to add customer");
         return;
       }

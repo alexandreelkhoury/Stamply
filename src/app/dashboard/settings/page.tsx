@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { Loader2, Save } from "lucide-react";
+import { api } from "@/lib/api";
 
 interface Program {
   id: string;
@@ -20,9 +21,8 @@ export default function SettingsPage() {
   const [success, setSuccess] = useState("");
 
   useEffect(() => {
-    fetch("/api/programs")
-      .then((r) => r.json())
-      .then((data) => {
+    api.get("/api/programs")
+      .then(({ data }) => {
         setPrograms(data.programs || []);
         if (data.programs?.length > 0) setEditing(data.programs[0]);
       })
@@ -36,13 +36,9 @@ export default function SettingsPage() {
     setSuccess("");
 
     try {
-      const res = await fetch(`/api/programs/${editing.id}`, {
-        method: "PATCH",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(editing),
-      });
+      const { ok } = await api.patch(`/api/programs/${editing.id}`, editing);
 
-      if (res.ok) {
+      if (ok) {
         setSuccess("Settings saved!");
         setTimeout(() => setSuccess(""), 3000);
       }
