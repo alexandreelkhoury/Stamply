@@ -1,8 +1,9 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import Link from "next/link";
+import useSWR, { useSWRConfig } from "swr";
 import {
   ArrowLeft,
   CreditCard,
@@ -15,7 +16,6 @@ import {
   X,
 } from "lucide-react";
 import { api } from "@/lib/api";
-import { useSWRConfig } from "swr";
 
 const PRESET_COLORS = [
   "#6C63FF", "#3B82F6", "#10B981", "#F59E0B", "#EF4444",
@@ -53,8 +53,16 @@ export default function ProgramDetailPage() {
   const { mutate } = useSWRConfig();
   const programId = params.id as string;
 
-  const [program, setProgram] = useState<Program | null>(null);
-  const [loading, setLoading] = useState(true);
+  const { data: programData, error: fetchError, isLoading: loading, mutate: mutateProgram } = useSWR<{ program: Program }>(
+    programId ? `/api/programs/${programId}` : null,
+    {
+      dedupingInterval: 2 * 60 * 1000, // 2 minutes
+      revalidateOnFocus: true,
+    }
+  );
+
+  const program = programData?.program ?? null;
+
   const [editing, setEditing] = useState(false);
   const [saving, setSaving] = useState(false);
   const [success, setSuccess] = useState("");
@@ -65,19 +73,6 @@ export default function ProgramDetailPage() {
   const [editStamps, setEditStamps] = useState(8);
   const [editReward, setEditReward] = useState("");
   const [editColor, setEditColor] = useState("#6C63FF");
-
-  useEffect(() => {
-    api.get<{ program: Program }>(`/api/programs/${programId}`)
-      .then(({ data, ok }) => {
-        if (!ok || !data.program) {
-          router.push("/dashboard");
-          return;
-        }
-        setProgram(data.program);
-      })
-      .catch(() => router.push("/dashboard"))
-      .finally(() => setLoading(false));
-  }, [programId, router]);
 
   function startEditing() {
     if (!program) return;
@@ -106,10 +101,10 @@ export default function ProgramDetailPage() {
       });
 
       if (ok) {
-        setProgram({ ...program, name: editName, stampsRequired: editStamps, rewardText: editReward, cardColor: editColor });
+        mutateProgram();
+        mutate("/api/programs");
         setEditing(false);
         setSuccess("Program updated!");
-        mutate("/api/programs");
         setTimeout(() => setSuccess(""), 3000);
       } else {
         setError(data?.error || "Failed to save");
@@ -129,8 +124,13 @@ export default function ProgramDetailPage() {
     );
   }
 
+  if (fetchError || (!loading && !program)) {
+    router.push("/dashboard");
+    return null;
+  }
+
   if (!program) {
-    return <p className="text-foreground/50">Program not found.</p>;
+    return null;
   }
 
   const customerCount = program._count?.cards || program.cards?.length || 0;
