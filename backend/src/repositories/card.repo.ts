@@ -8,11 +8,17 @@ export const cardRepo = {
     });
   },
 
+  // #11: Don't expose phone in public endpoint
   findByQrCodePublic(qrCode: string) {
     return db.card.findUnique({
       where: { qrCode },
-      include: {
-        customer: { select: { name: true, phone: true } },
+      select: {
+        id: true,
+        currentStamps: true,
+        totalStamps: true,
+        rewardsEarned: true,
+        qrCode: true,
+        customer: { select: { name: true } },
         program: {
           select: {
             name: true,

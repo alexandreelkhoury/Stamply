@@ -42,6 +42,7 @@ model Program {
   merchant Merchant @relation(fields: [merchantId], references: [id], onDelete: Cascade)
   cards    Card[]
 
+  @@index([merchantId])
   @@map("programs")
 }
 

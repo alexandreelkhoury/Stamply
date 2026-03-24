@@ -1,12 +1,19 @@
+import crypto from 'crypto';
+
+// #16: Use crypto.randomBytes instead of Math.random
 export function generateQrCode(): string {
-  const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
-  let result = '';
-  for (let i = 0; i < 8; i++) {
-    result += chars.charAt(Math.floor(Math.random() * chars.length));
-  }
-  return result;
+  return crypto.randomBytes(6).toString('base64url').slice(0, 8);
 }
 
 export function formatPhone(phone: string): string {
-  return phone.replace(/[^\d+]/g, '');
+  const cleaned = phone.replace(/[^\d+]/g, '');
+  // #12: Basic phone validation
+  if (cleaned.length < 7 || cleaned.length > 16) {
+    throw new Error('Invalid phone number');
+  }
+  return cleaned;
+}
+
+export function isValidEmail(email: string): boolean {
+  return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
 }

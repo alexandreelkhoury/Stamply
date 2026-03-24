@@ -19,6 +19,7 @@ export default function SettingsPage() {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [success, setSuccess] = useState("");
+  const [error, setError] = useState("");
 
   useEffect(() => {
     api.get("/api/programs")
@@ -34,14 +35,19 @@ export default function SettingsPage() {
     if (!editing) return;
     setSaving(true);
     setSuccess("");
+    setError("");
 
     try {
-      const { ok } = await api.patch(`/api/programs/${editing.id}`, editing);
+      const { data, ok } = await api.patch(`/api/programs/${editing.id}`, editing);
 
       if (ok) {
         setSuccess("Settings saved!");
         setTimeout(() => setSuccess(""), 3000);
+      } else {
+        setError(data?.error || "Failed to save settings");
       }
+    } catch {
+      setError("Something went wrong");
     } finally {
       setSaving(false);
     }
@@ -64,6 +70,9 @@ export default function SettingsPage() {
       <h1 className="text-2xl font-bold mb-6">Program Settings</h1>
 
       <form onSubmit={handleSave} className="space-y-4">
+        {error && (
+          <div className="text-sm text-danger bg-danger/10 px-3 py-2 rounded-lg">{error}</div>
+        )}
         {success && (
           <div className="text-sm text-success bg-success/10 px-3 py-2 rounded-lg">{success}</div>
         )}
@@ -85,7 +94,7 @@ export default function SettingsPage() {
             min="2"
             max="50"
             value={editing.stampsRequired}
-            onChange={(e) => setEditing({ ...editing, stampsRequired: parseInt(e.target.value) })}
+            onChange={(e) => setEditing({ ...editing, stampsRequired: parseInt(e.target.value) || editing.stampsRequired })}
             className="w-full px-3 py-2 rounded-lg border border-foreground/15 bg-transparent text-sm focus:outline-none focus:ring-2 focus:ring-primary/50"
           />
         </div>

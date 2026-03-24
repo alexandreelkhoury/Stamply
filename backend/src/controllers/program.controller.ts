@@ -3,6 +3,15 @@ import { programService } from '../services/program.service';
 import { AuthRequest } from '../middleware/auth';
 import { AppError, BadRequestError } from '../types';
 
+// #5: Validate stampsRequired is a positive integer
+function parseStampsRequired(value: unknown): number {
+  const parsed = parseInt(String(value));
+  if (isNaN(parsed) || parsed < 2 || parsed > 50) {
+    throw new BadRequestError('stampsRequired must be a number between 2 and 50');
+  }
+  return parsed;
+}
+
 export const programController = {
   async list(req: AuthRequest, res: Response) {
     try {
@@ -42,7 +51,7 @@ export const programController = {
 
       const program = await programService.create(req.merchant!.id, {
         name,
-        stampsRequired: parseInt(stampsRequired),
+        stampsRequired: parseStampsRequired(stampsRequired),
         rewardText,
         cardColor,
         textColor,
@@ -65,7 +74,7 @@ export const programController = {
 
       const data: Record<string, unknown> = {};
       if (name !== undefined) data.name = name;
-      if (stampsRequired !== undefined) data.stampsRequired = parseInt(stampsRequired);
+      if (stampsRequired !== undefined) data.stampsRequired = parseStampsRequired(stampsRequired);
       if (rewardText !== undefined) data.rewardText = rewardText;
       if (cardColor !== undefined) data.cardColor = cardColor;
       if (textColor !== undefined) data.textColor = textColor;

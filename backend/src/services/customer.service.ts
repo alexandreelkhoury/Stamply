@@ -16,7 +16,12 @@ export const customerService = {
   },
 
   async createWithCard(merchantId: string, phone: string, name: string | null, programId: string) {
-    const formattedPhone = formatPhone(phone);
+    let formattedPhone: string;
+    try {
+      formattedPhone = formatPhone(phone);
+    } catch {
+      throw new BadRequestError('Invalid phone number (7-16 digits required)');
+    }
 
     // Verify program belongs to merchant
     const program = await programRepo.findActiveByIdAndMerchant(programId, merchantId);

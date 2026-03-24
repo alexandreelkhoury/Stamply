@@ -1,25 +1,41 @@
 import { db } from '../lib/db';
 
 export const stampRepo = {
-  createWithCardUpdate(
-    cardId: string,
-    merchantId: string,
-    stampType: string,
-    cardUpdate: { currentStamps: number; rewardEarned: boolean },
-  ) {
-    return db.$transaction([
-      db.stamp.create({
+  // #1: Use interactive transaction to prevent race conditions
+  async createWithCardUpdate(cardId: string, merchantId: string) {
+    return db.$transaction(async (tx) => {
+      // Read current card state INSIDE the transaction
+      const card = await tx.card.findUniqueOrThrow({
+        where: { id: cardId },
+        include: { program: true },
+      });
+
+      const newStampCount = card.currentStamps + 1;
+      const rewardEarned = newStampCount >= card.program.stampsRequired;
+      const stampType = rewardEarned ? 'reward_redeemed' : 'stamp';
+
+      const stamp = await tx.stamp.create({
         data: { cardId, merchantId, stampType },
-      }),
-      db.card.update({
+      });
+
+      await tx.card.update({
         where: { id: cardId },
         data: {
-          currentStamps: cardUpdate.rewardEarned ? 0 : cardUpdate.currentStamps,
+          currentStamps: rewardEarned ? 0 : newStampCount,
           totalStamps: { increment: 1 },
-          ...(cardUpdate.rewardEarned && { rewardsEarned: { increment: 1 } }),
+          ...(rewardEarned && { rewardsEarned: { increment: 1 } }),
         },
-      }),
-    ]);
+      });
+
+      return {
+        stamp,
+        currentStamps: rewardEarned ? 0 : newStampCount,
+        stampsRequired: card.program.stampsRequired,
+        rewardEarned,
+        rewardText: card.program.rewardText,
+        programName: card.program.name,
+      };
+    });
   },
 
   findByMerchant(merchantId: string, take = 50) {

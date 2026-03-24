@@ -1,7 +1,12 @@
 import jwt from 'jsonwebtoken';
 import bcrypt from 'bcryptjs';
 
-const JWT_SECRET = process.env.JWT_SECRET || 'dev-secret-change-in-production';
+// #2: Throw if JWT_SECRET is missing in production
+const JWT_SECRET = process.env.JWT_SECRET;
+if (!JWT_SECRET && process.env.NODE_ENV === 'production') {
+  throw new Error('JWT_SECRET environment variable is required in production');
+}
+const secret = JWT_SECRET || 'dev-secret-local-only';
 
 export async function hashPassword(password: string): Promise<string> {
   return bcrypt.hash(password, 12);
@@ -12,12 +17,12 @@ export async function verifyPassword(password: string, hash: string): Promise<bo
 }
 
 export function createToken(merchantId: string): string {
-  return jwt.sign({ merchantId }, JWT_SECRET, { expiresIn: '30d' });
+  return jwt.sign({ merchantId }, secret, { expiresIn: '30d' });
 }
 
 export function verifyToken(token: string): { merchantId: string } | null {
   try {
-    return jwt.verify(token, JWT_SECRET) as { merchantId: string };
+    return jwt.verify(token, secret) as { merchantId: string };
   } catch {
     return null;
   }

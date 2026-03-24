@@ -1,5 +1,5 @@
 import 'dotenv/config';
-import express from 'express';
+import express, { Request, Response, NextFunction } from 'express';
 import cors from 'cors';
 
 import authRoutes from './routes/auth';
@@ -8,6 +8,7 @@ import customerRoutes from './routes/customers';
 import stampRoutes from './routes/stamps';
 import analyticsRoutes from './routes/analytics';
 import cardRoutes from './routes/cards';
+import { AppError } from './types';
 
 const app = express();
 const PORT = process.env.PORT || 4000;
@@ -31,6 +32,16 @@ app.use('/api/customers', customerRoutes);
 app.use('/api/stamps', stampRoutes);
 app.use('/api/analytics', analyticsRoutes);
 app.use('/api/cards', cardRoutes);
+
+// #15: Global error handler — catches unhandled errors, no stack trace leak
+app.use((err: Error, _req: Request, res: Response, _next: NextFunction) => {
+  if (err instanceof AppError) {
+    res.status(err.statusCode).json({ error: err.message });
+    return;
+  }
+  console.error('Unhandled error:', err.message);
+  res.status(500).json({ error: 'Internal server error' });
+});
 
 app.listen(PORT, () => {
   console.log(`Stamply backend running on http://localhost:${PORT}`);

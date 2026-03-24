@@ -1,9 +1,10 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import { useRouter, usePathname } from "next/navigation";
 import Link from "next/link";
 import { api } from "@/lib/api";
+import { useAuth } from "@/hooks/use-auth";
 import {
   CreditCard,
   LayoutDashboard,
@@ -14,30 +15,16 @@ import {
   Loader2,
 } from "lucide-react";
 
-interface Merchant {
-  id: string;
-  email: string;
-  businessName: string;
-}
-
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
   const router = useRouter();
   const pathname = usePathname();
-  const [merchant, setMerchant] = useState<Merchant | null>(null);
-  const [loading, setLoading] = useState(true);
+  const { merchant, isLoading: loading, isUnauthorized, mutateAuth } = useAuth();
 
   useEffect(() => {
-    api.get("/api/auth/me")
-      .then(({ data, ok, status }) => {
-        if (!ok || status === 401) {
-          router.push("/login");
-          return;
-        }
-        setMerchant(data.merchant);
-      })
-      .catch(() => router.push("/login"))
-      .finally(() => setLoading(false));
-  }, [router]);
+    if (isUnauthorized) {
+      router.push("/login");
+    }
+  }, [isUnauthorized, router]);
 
   if (loading) {
     return (
@@ -56,6 +43,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
 
   function handleLogout() {
     api.clearToken();
+    mutateAuth(null, false);
     router.push("/login");
   }
 

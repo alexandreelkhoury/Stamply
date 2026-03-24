@@ -2,6 +2,7 @@ import { Request, Response } from 'express';
 import { authService } from '../services/auth.service';
 import { AuthRequest } from '../middleware/auth';
 import { AppError, BadRequestError } from '../types';
+import { isValidEmail } from '../lib/utils';
 
 export const authController = {
   async register(req: Request, res: Response) {
@@ -9,6 +10,16 @@ export const authController = {
       const { email, password, businessName } = req.body;
       if (!email || !password || !businessName) {
         throw new BadRequestError('Email, password, and business name are required');
+      }
+
+      // #4: Email format validation
+      if (!isValidEmail(email)) {
+        throw new BadRequestError('Invalid email format');
+      }
+
+      // #3: Password validation
+      if (password.length < 8) {
+        throw new BadRequestError('Password must be at least 8 characters');
       }
 
       const result = await authService.register(email, password, businessName);

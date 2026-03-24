@@ -1,6 +1,6 @@
 import { cardRepo } from '../repositories/card.repo';
 import { stampRepo } from '../repositories/stamp.repo';
-import { NotFoundError, ForbiddenError, RateLimitError } from '../types';
+import { NotFoundError, ForbiddenError, RateLimitError, BadRequestError } from '../types';
 
 // In-memory rate limiting (1 stamp per card per 15 minutes)
 const rateLimitMap = new Map<string, number>();
@@ -28,6 +28,7 @@ function checkRateLimit(cardId: string) {
 
 export const stampService = {
   async addStamp(qrCode: string, merchantId: string) {
+    // Lookup card for ownership/active checks
     const card = await cardRepo.findByQrCode(qrCode);
     if (!card) throw new NotFoundError('Card');
 
@@ -35,30 +36,22 @@ export const stampService = {
       throw new ForbiddenError('This card does not belong to your program');
     }
 
+    // #8: Block stamps on inactive programs
+    if (!card.program.isActive) {
+      throw new BadRequestError('This program is no longer active');
+    }
+
     checkRateLimit(card.id);
 
-    const newStampCount = card.currentStamps + 1;
-    const rewardEarned = newStampCount >= card.program.stampsRequired;
-    const stampType = rewardEarned ? 'reward_redeemed' : 'stamp';
-
-    const [stamp] = await stampRepo.createWithCardUpdate(
-      card.id,
-      merchantId,
-      stampType,
-      { currentStamps: newStampCount, rewardEarned },
-    );
+    // #1: Stamp creation + card update inside transaction (race-safe)
+    const result = await stampRepo.createWithCardUpdate(card.id, merchantId);
 
     rateLimitMap.set(card.id, Date.now());
     cleanupRateLimitMap();
 
     return {
-      stamp,
+      ...result,
       customerName: card.customer.name || card.customer.phone,
-      currentStamps: rewardEarned ? 0 : newStampCount,
-      stampsRequired: card.program.stampsRequired,
-      rewardEarned,
-      rewardText: card.program.rewardText,
-      programName: card.program.name,
     };
   },
 
