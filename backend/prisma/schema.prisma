@@ -74,6 +74,7 @@ model Card {
   stamps   Stamp[]
 
   @@unique([customerId, programId])
+  @@index([programId])
   @@map("cards")
 }
 
@@ -87,5 +88,8 @@ model Stamp {
   card     Card     @relation(fields: [cardId], references: [id])
   merchant Merchant @relation(fields: [merchantId], references: [id])
 
+  @@index([cardId])
+  @@index([merchantId])
+  @@index([merchantId, stampType, createdAt])
   @@map("stamps")
 }
