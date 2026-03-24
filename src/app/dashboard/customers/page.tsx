@@ -3,14 +3,12 @@
 import { useState, useEffect } from "react";
 import { UserPlus, Loader2, Phone } from "lucide-react";
 import { api } from "@/lib/api";
-
-interface Program {
-  id: string;
-  name: string;
-}
+import { usePrograms } from "@/hooks/use-programs";
+import { useSWRConfig } from "swr";
 
 export default function CustomersPage() {
-  const [programs, setPrograms] = useState<Program[]>([]);
+  const { programs } = usePrograms();
+  const { mutate } = useSWRConfig();
   const [phone, setPhone] = useState("");
   const [name, setName] = useState("");
   const [selectedProgram, setSelectedProgram] = useState("");
@@ -19,14 +17,10 @@ export default function CustomersPage() {
   const [error, setError] = useState("");
 
   useEffect(() => {
-    api.get("/api/programs")
-      .then(({ data }) => {
-        setPrograms(data.programs || []);
-        if (data.programs?.length > 0) {
-          setSelectedProgram(data.programs[0].id);
-        }
-      });
-  }, []);
+    if (programs.length > 0 && !selectedProgram) {
+      setSelectedProgram(programs[0].id);
+    }
+  }, [programs, selectedProgram]);
 
   async function handleAddCustomer(e: React.FormEvent) {
     e.preventDefault();
@@ -35,7 +29,7 @@ export default function CustomersPage() {
     setLoading(true);
 
     try {
-      const { data, ok } = await api.post("/api/customers", {
+      const { data, ok } = await api.post<{ error?: string; message?: string; card: { qrCode: string } }>("/api/customers", {
         phone: phone.startsWith("+") ? phone : `+${phone}`,
         name: name || undefined,
         programId: selectedProgram,
@@ -51,6 +45,7 @@ export default function CustomersPage() {
       );
       setPhone("");
       setName("");
+      mutate("/api/analytics");
     } catch {
       setError("Something went wrong");
     } finally {

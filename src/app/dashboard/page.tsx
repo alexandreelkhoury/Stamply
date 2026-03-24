@@ -1,41 +1,14 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { Users, Stamp, Gift, TrendingUp, Loader2 } from "lucide-react";
+import { Users, Stamp, Gift, TrendingUp, Loader2, Plus, CreditCard } from "lucide-react";
 import Link from "next/link";
-import { api } from "@/lib/api";
-
-interface Analytics {
-  totalCustomers: number;
-  totalStampsToday: number;
-  totalRewards: number;
-  recentStamps: Array<{
-    id: string;
-    stampType: string;
-    createdAt: string;
-    card: {
-      customer: { name: string | null; phone: string };
-      program: { name: string };
-    };
-  }>;
-}
+import { useAnalytics } from "@/hooks/use-analytics";
+import { usePrograms } from "@/hooks/use-programs";
 
 export default function DashboardPage() {
-  const [data, setData] = useState<Analytics | null>(null);
-  const [programs, setPrograms] = useState<Array<{ id: string; name: string; stampsRequired: number; rewardText: string; _count: { cards: number } }>>([]);
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    Promise.all([
-      api.get("/api/analytics"),
-      api.get("/api/programs"),
-    ])
-      .then(([analyticsRes, programsRes]) => {
-        setData(analyticsRes.data);
-        setPrograms(programsRes.data.programs || []);
-      })
-      .finally(() => setLoading(false));
-  }, []);
+  const { analytics, isLoading: analyticsLoading } = useAnalytics();
+  const { programs, isLoading: programsLoading } = usePrograms();
+  const loading = analyticsLoading || programsLoading;
 
   if (loading) {
     return (
@@ -46,9 +19,9 @@ export default function DashboardPage() {
   }
 
   const stats = [
-    { label: "Total Customers", value: data?.totalCustomers || 0, icon: Users, color: "text-primary" },
-    { label: "Stamps Today", value: data?.totalStampsToday || 0, icon: Stamp, color: "text-success" },
-    { label: "Rewards Given", value: data?.totalRewards || 0, icon: Gift, color: "text-warning" },
+    { label: "Total Customers", value: analytics?.totalCustomers || 0, icon: Users, color: "text-primary" },
+    { label: "Stamps Today", value: analytics?.totalStampsToday || 0, icon: Stamp, color: "text-success" },
+    { label: "Rewards Given", value: analytics?.totalRewards || 0, icon: Gift, color: "text-warning" },
   ];
 
   return (
@@ -76,7 +49,18 @@ export default function DashboardPage() {
         ))}
       </div>
 
-      {/* Program */}
+      {/* Programs */}
+      <div className="flex items-center justify-between mb-4">
+        <h2 className="text-lg font-semibold">Your Programs</h2>
+        <Link
+          href="/dashboard/setup"
+          className="flex items-center gap-1.5 text-sm font-medium text-primary hover:text-primary-dark transition"
+        >
+          <Plus className="h-4 w-4" />
+          New program
+        </Link>
+      </div>
+
       {programs.length === 0 ? (
         <div className="border border-dashed border-foreground/20 rounded-xl p-8 text-center">
           <TrendingUp className="h-8 w-8 text-foreground/20 mx-auto mb-3" />
@@ -90,27 +74,48 @@ export default function DashboardPage() {
           </Link>
         </div>
       ) : (
-        <div className="space-y-4">
-          <h2 className="text-lg font-semibold">Your Programs</h2>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           {programs.map((program) => (
-            <div key={program.id} className="border border-foreground/10 rounded-xl p-5 flex items-center justify-between">
-              <div>
-                <h3 className="font-medium">{program.name}</h3>
-                <p className="text-sm text-foreground/50">
-                  {program.stampsRequired} stamps → {program.rewardText} · {program._count.cards} customers
-                </p>
+            <Link
+              key={program.id}
+              href={`/dashboard/programs/${program.id}`}
+              className="group border border-foreground/10 rounded-xl overflow-hidden hover:border-foreground/20 transition"
+            >
+              {/* Color bar */}
+              <div className="h-2" style={{ backgroundColor: program.cardColor }} />
+              <div className="p-5">
+                <div className="flex items-center gap-3 mb-3">
+                  <div
+                    className="w-10 h-10 rounded-lg flex items-center justify-center"
+                    style={{ backgroundColor: program.cardColor }}
+                  >
+                    <CreditCard className="h-5 w-5 text-white" />
+                  </div>
+                  <div>
+                    <h3 className="font-medium group-hover:text-primary transition">{program.name}</h3>
+                    <p className="text-xs text-foreground/40">
+                      {program._count?.cards || 0} customers
+                    </p>
+                  </div>
+                </div>
+                <div className="flex items-center justify-between text-sm text-foreground/50">
+                  <span>{program.stampsRequired} stamps &rarr; {program.rewardText}</span>
+                  <span className="text-xs text-primary opacity-0 group-hover:opacity-100 transition">
+                    View details &rarr;
+                  </span>
+                </div>
               </div>
-            </div>
+            </Link>
           ))}
         </div>
       )}
 
       {/* Recent activity */}
-      {data?.recentStamps && data.recentStamps.length > 0 && (
+      {analytics?.recentStamps && analytics.recentStamps.length > 0 && (
         <div className="mt-8">
           <h2 className="text-lg font-semibold mb-4">Recent Activity</h2>
           <div className="space-y-2">
-            {data.recentStamps.slice(0, 10).map((stamp) => (
+            {analytics.recentStamps.slice(0, 10).map((stamp) => (
               <div key={stamp.id} className="flex items-center justify-between py-2 border-b border-foreground/5 last:border-0">
                 <div className="flex items-center gap-3">
                   <div className={`w-2 h-2 rounded-full ${stamp.stampType === 'reward_redeemed' ? 'bg-warning' : 'bg-success'}`} />

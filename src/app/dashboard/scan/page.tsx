@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState, useCallback } from "react";
 import { Camera, Check, AlertCircle, Gift, X } from "lucide-react";
 import { api } from "@/lib/api";
+import { useSWRConfig } from "swr";
 
 interface StampResult {
   customerName: string;
@@ -42,6 +43,7 @@ function playErrorSound() {
 }
 
 export default function ScanPage() {
+  const { mutate } = useSWRConfig();
   const scannerContainerId = "qr-scanner-container";
   const html5QrRef = useRef<unknown>(null);
   const [scanning, setScanning] = useState(false);
@@ -83,6 +85,7 @@ export default function ScanPage() {
 
       playSuccessSound();
       setResult(data.stamp);
+      mutate("/api/analytics");
 
       // Auto-dismiss after 4 seconds
       setTimeout(() => {

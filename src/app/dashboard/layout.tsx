@@ -43,7 +43,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
 
   function handleLogout() {
     api.clearToken();
-    mutateAuth(null, false);
+    mutateAuth(undefined, false);
     router.push("/login");
   }
 

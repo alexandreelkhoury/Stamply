@@ -19,7 +19,7 @@ export default function LoginPage() {
     setLoading(true);
 
     try {
-      const { data, ok } = await api.post("/api/auth/login", { email, password });
+      const { data, ok } = await api.post<{ token: string; error?: string }>("/api/auth/login", { email, password });
 
       if (!ok) {
         setError(data.error || "Login failed");

@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono, Sora } from "next/font/google";
+import { SWRProvider } from "@/providers/swr-provider";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -42,7 +43,7 @@ export default function RootLayout({
       className={`${geistSans.variable} ${geistMono.variable} ${sora.variable}`}
     >
       <body className="min-h-screen bg-background text-foreground font-sans antialiased noise-bg">
-        {children}
+        <SWRProvider>{children}</SWRProvider>
       </body>
     </html>
   );

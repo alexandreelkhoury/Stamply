@@ -20,7 +20,7 @@ export default function RegisterPage() {
     setLoading(true);
 
     try {
-      const { data, ok } = await api.post("/api/auth/register", { email, password, businessName });
+      const { data, ok } = await api.post<{ token: string; error?: string }>("/api/auth/register", { email, password, businessName });
 
       if (!ok) {
         setError(data.error || "Registration failed");

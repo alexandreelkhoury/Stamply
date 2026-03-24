@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import { Loader2, Save } from "lucide-react";
 import { api } from "@/lib/api";
+import { usePrograms } from "@/hooks/use-programs";
 
 interface Program {
   id: string;
@@ -14,21 +15,15 @@ interface Program {
 }
 
 export default function SettingsPage() {
-  const [programs, setPrograms] = useState<Program[]>([]);
+  const { programs, isLoading: loading, mutatePrograms } = usePrograms();
   const [editing, setEditing] = useState<Program | null>(null);
-  const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [success, setSuccess] = useState("");
   const [error, setError] = useState("");
 
   useEffect(() => {
-    api.get("/api/programs")
-      .then(({ data }) => {
-        setPrograms(data.programs || []);
-        if (data.programs?.length > 0) setEditing(data.programs[0]);
-      })
-      .finally(() => setLoading(false));
-  }, []);
+    if (programs.length > 0 && !editing) setEditing(programs[0]);
+  }, [programs, editing]);
 
   async function handleSave(e: React.FormEvent) {
     e.preventDefault();
@@ -38,10 +33,11 @@ export default function SettingsPage() {
     setError("");
 
     try {
-      const { data, ok } = await api.patch(`/api/programs/${editing.id}`, editing);
+      const { data, ok } = await api.patch<{ error?: string }>(`/api/programs/${editing.id}`, editing);
 
       if (ok) {
         setSuccess("Settings saved!");
+        mutatePrograms();
         setTimeout(() => setSuccess(""), 3000);
       } else {
         setError(data?.error || "Failed to save settings");

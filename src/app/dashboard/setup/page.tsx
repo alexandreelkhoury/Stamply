@@ -4,6 +4,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { CreditCard, Loader2 } from "lucide-react";
 import { api } from "@/lib/api";
+import { useSWRConfig } from "swr";
 
 const PRESET_COLORS = [
   "#6C63FF", "#3B82F6", "#10B981", "#F59E0B", "#EF4444",
@@ -12,6 +13,7 @@ const PRESET_COLORS = [
 
 export default function SetupPage() {
   const router = useRouter();
+  const { mutate } = useSWRConfig();
   const [name, setName] = useState("");
   const [stampsRequired, setStampsRequired] = useState("8");
   const [rewardText, setRewardText] = useState("");
@@ -25,13 +27,14 @@ export default function SetupPage() {
     setLoading(true);
 
     try {
-      const { ok, data } = await api.post("/api/programs", { name, stampsRequired, rewardText, cardColor });
+      const { ok, data } = await api.post<{ error?: string }>("/api/programs", { name, stampsRequired, rewardText, cardColor });
 
       if (!ok) {
         setError(data.error || "Failed to create program");
         return;
       }
 
+      mutate("/api/programs");
       router.push("/dashboard");
     } catch {
       setError("Something went wrong");

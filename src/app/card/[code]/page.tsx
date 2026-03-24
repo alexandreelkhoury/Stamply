@@ -32,7 +32,7 @@ interface CardData {
 async function getCard(code: string) {
   try {
     const res = await fetch(`${API_URL}/api/cards/${code}/public`, {
-      next: { revalidate: 0 },
+      next: { revalidate: 30 },
     });
     if (!res.ok) return null;
     const data: CardData = await res.json();
