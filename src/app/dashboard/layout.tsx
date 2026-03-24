@@ -10,7 +10,6 @@ import {
   LayoutDashboard,
   QrCode,
   Users,
-  Settings,
   LogOut,
   Loader2,
 } from "lucide-react";
@@ -38,7 +37,6 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
     { href: "/dashboard", label: "Overview", icon: LayoutDashboard },
     { href: "/dashboard/scan", label: "Scan", icon: QrCode },
     { href: "/dashboard/customers", label: "Customers", icon: Users },
-    { href: "/dashboard/settings", label: "Settings", icon: Settings },
   ];
 
   function handleLogout() {
@@ -57,7 +55,9 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
         </div>
         <nav className="space-y-1 flex-1">
           {nav.map((item) => {
-            const isActive = pathname === item.href;
+            const isActive = item.href === "/dashboard"
+              ? pathname === "/dashboard" || pathname.startsWith("/dashboard/programs/") || pathname === "/dashboard/setup"
+              : pathname === item.href;
             return (
               <Link
                 key={item.href}
@@ -95,7 +95,9 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
         </div>
         <div className="flex gap-2">
           {nav.map((item) => {
-            const isActive = pathname === item.href;
+            const isActive = item.href === "/dashboard"
+              ? pathname === "/dashboard" || pathname.startsWith("/dashboard/programs/") || pathname === "/dashboard/setup"
+              : pathname === item.href;
             return (
               <Link
                 key={item.href}

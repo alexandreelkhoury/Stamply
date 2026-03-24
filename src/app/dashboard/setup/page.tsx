@@ -94,7 +94,7 @@ export default function SetupPage() {
 
         <div>
           <label className="block text-sm font-medium mb-3">Card color</label>
-          <div className="flex gap-2 flex-wrap">
+          <div className="flex gap-2 flex-wrap mb-3">
             {PRESET_COLORS.map((color) => (
               <button
                 key={color}
@@ -106,6 +106,15 @@ export default function SetupPage() {
                 style={{ backgroundColor: color }}
               />
             ))}
+          </div>
+          <div className="flex items-center gap-3">
+            <input
+              type="color"
+              value={cardColor}
+              onChange={(e) => setCardColor(e.target.value)}
+              className="w-10 h-10 rounded-lg border border-foreground/15 cursor-pointer"
+            />
+            <span className="text-sm text-foreground/40">Or pick any color</span>
           </div>
         </div>
 
