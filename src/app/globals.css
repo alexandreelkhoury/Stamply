@@ -35,16 +35,14 @@
   --font-display: var(--font-display);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0A0A0F;
-    --foreground: #EDEDEB;
-    --muted: #1A1A24;
-    --muted-foreground: #9A9A9A;
-    --card: #141420;
-    --card-border: rgba(255, 255, 255, 0.06);
-    --glow: rgba(108, 99, 255, 0.25);
-  }
+html.dark {
+  --background: #0A0A0F;
+  --foreground: #EDEDEB;
+  --muted: #1A1A24;
+  --muted-foreground: #9A9A9A;
+  --card: #141420;
+  --card-border: rgba(255, 255, 255, 0.06);
+  --glow: rgba(108, 99, 255, 0.25);
 }
 
 body {
@@ -154,11 +152,9 @@ body {
   border: 1px solid rgba(255, 255, 255, 0.5);
 }
 
-@media (prefers-color-scheme: dark) {
-  .glass-card {
-    background: rgba(20, 20, 32, 0.7);
-    border: 1px solid rgba(255, 255, 255, 0.08);
-  }
+html.dark .glass-card {
+  background: rgba(20, 20, 32, 0.7);
+  border: 1px solid rgba(255, 255, 255, 0.08);
 }
 
 /* Loyalty card visual */
@@ -352,18 +348,6 @@ body {
   .progress-fill {
     transition: none !important;
   }
-}
-
-/* Landing page light mode override */
-.landing-light {
-  --background: #FFFFFF;
-  --foreground: #111827;
-  --muted: #F9FAFB;
-  --muted-foreground: #6B7280;
-  --card: #FFFFFF;
-  --card-border: rgba(0, 0, 0, 0.06);
-  background: #FFFFFF;
-  color: #111827;
 }
 
 /* Smooth scroll */

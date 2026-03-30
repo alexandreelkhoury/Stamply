@@ -17,7 +17,10 @@ import {
   Users,
   Share2,
   Heart,
+  Sun,
+  Moon,
 } from "lucide-react";
+import { useTheme } from "@/providers/theme-provider";
 
 /* ─── Animated stamp dots for the hero card ─── */
 function StampGrid({ filled, total }: { filled: number; total: number }) {
@@ -37,7 +40,7 @@ function StampGrid({ filled, total }: { filled: number; total: number }) {
           key={i}
           className={`w-9 h-9 rounded-full flex items-center justify-center text-xs font-bold transition-all duration-300 ${
             i < animated
-              ? "bg-white/30 text-white scale-100"
+              ? "bg-card/30 text-white scale-100"
               : "border-2 border-white/25 text-white/30 scale-90"
           }`}
           style={{
@@ -104,6 +107,7 @@ function AnimatedNumber({ target, suffix = "" }: { target: number; suffix?: stri
 /* ─── MAIN PAGE ─── */
 export default function Home() {
   const [navScrolled, setNavScrolled] = useState(false);
+  const { theme, toggleTheme } = useTheme();
 
   useEffect(() => {
     const onScroll = () => setNavScrolled(window.scrollY > 20);
@@ -112,12 +116,12 @@ export default function Home() {
   }, []);
 
   return (
-    <div className="relative overflow-hidden landing-light">
+    <div className="relative overflow-hidden">
       {/* ━━━ NAV ━━━ */}
       <nav
         className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
           navScrolled
-            ? "bg-white/80 backdrop-blur-xl border-b border-gray-200/60 shadow-sm"
+            ? "bg-background/80 backdrop-blur-xl border-b border-card-border shadow-sm"
             : "bg-transparent"
         }`}
       >
@@ -126,20 +130,27 @@ export default function Home() {
             <div className="w-8 h-8 rounded-lg bg-primary flex items-center justify-center group-hover:scale-105 transition-transform">
               <Sparkles className="h-4 w-4 text-white" />
             </div>
-            <span className="text-lg font-bold tracking-tight font-[family-name:var(--font-display)] text-gray-900">
+            <span className="text-lg font-bold tracking-tight font-[family-name:var(--font-display)] text-foreground">
               Stamply
             </span>
           </Link>
           <div className="flex items-center gap-3">
+            <button
+              onClick={toggleTheme}
+              className="p-2 rounded-full text-muted-foreground hover:text-foreground hover:bg-muted transition"
+              aria-label="Toggle theme"
+            >
+              {theme === "dark" ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
+            </button>
             <Link
               href="/login"
-              className="hidden sm:inline-flex text-sm font-medium text-gray-500 hover:text-gray-900 transition px-3 py-2"
+              className="hidden sm:inline-flex text-sm font-medium text-muted-foreground hover:text-foreground transition px-3 py-2"
             >
               Log in
             </Link>
             <Link
               href="/register"
-              className="text-sm font-semibold bg-gray-900 text-white px-5 py-2.5 rounded-full hover:bg-gray-800 transition-all hover:scale-[1.02] active:scale-[0.98]"
+              className="text-sm font-semibold bg-foreground text-background px-5 py-2.5 rounded-full hover:opacity-90 transition-all hover:scale-[1.02] active:scale-[0.98]"
             >
               Start free trial
             </Link>
@@ -148,7 +159,7 @@ export default function Home() {
       </nav>
 
       {/* ━━━ HERO ━━━ */}
-      <section className="relative pt-32 pb-20 md:pt-40 md:pb-32 bg-gradient-to-b from-gray-50 via-white to-white">
+      <section className="relative pt-32 pb-20 md:pt-40 md:pb-32 hero-gradient">
         {/* Decorative blobs */}
         <div className="absolute top-20 right-[10%] w-72 h-72 bg-primary/5 rounded-full blur-3xl pointer-events-none" />
         <div className="absolute bottom-0 left-[5%] w-96 h-96 bg-primary/3 rounded-full blur-3xl pointer-events-none" />
@@ -164,7 +175,7 @@ export default function Home() {
                 </div>
               </div>
 
-              <h1 className="animate-fade-up delay-100 text-[2.25rem] sm:text-[2.75rem] md:text-[3.5rem] lg:text-[4rem] font-extrabold leading-[1.08] tracking-tight font-[family-name:var(--font-display)] text-gray-900">
+              <h1 className="animate-fade-up delay-100 text-[2.25rem] sm:text-[2.75rem] md:text-[3.5rem] lg:text-[4rem] font-extrabold leading-[1.08] tracking-tight font-[family-name:var(--font-display)] text-foreground">
                 Ready to turn
                 <br />
                 one-time visitors
@@ -177,7 +188,7 @@ export default function Home() {
                 </span>
               </h1>
 
-              <p className="animate-fade-up delay-200 mt-6 text-lg md:text-xl text-gray-500 max-w-lg leading-relaxed">
+              <p className="animate-fade-up delay-200 mt-6 text-lg md:text-xl text-muted-foreground max-w-lg leading-relaxed">
                 Replace paper punch cards with digital loyalty cards that live in
                 Apple & Google Wallet. Set up your program in 3 minutes — customers
                 join in 10 seconds.
@@ -193,13 +204,13 @@ export default function Home() {
                 </Link>
                 <a
                   href="#how-it-works"
-                  className="inline-flex items-center justify-center gap-2 text-gray-600 px-6 py-3.5 rounded-full text-base font-medium border border-gray-200 hover:bg-gray-50 transition-all"
+                  className="inline-flex items-center justify-center gap-2 text-foreground/70 px-6 py-3.5 rounded-full text-base font-medium border border-card-border hover:bg-muted transition-all"
                 >
                   See how it works
                 </a>
               </div>
 
-              <p className="animate-fade-up delay-400 mt-5 text-sm text-gray-400 flex items-center gap-4">
+              <p className="animate-fade-up delay-400 mt-5 text-sm text-muted-foreground flex items-center gap-4">
                 <span className="flex items-center gap-1.5">
                   <Check className="h-3.5 w-3.5 text-success" />
                   14-day free trial
@@ -230,7 +241,7 @@ export default function Home() {
                   <div className="flex items-start justify-between mb-1">
                     <div>
                       <div className="flex items-center gap-2 mb-0.5">
-                        <div className="w-6 h-6 bg-white/20 rounded-md flex items-center justify-center">
+                        <div className="w-6 h-6 bg-card/20 rounded-md flex items-center justify-center">
                           <Sparkles className="h-3.5 w-3.5" />
                         </div>
                         <span className="font-bold text-sm tracking-wide">
@@ -265,15 +276,15 @@ export default function Home() {
 
                 {/* Stamp notification toast */}
                 <div
-                  className="absolute -bottom-5 left-0 sm:-left-6 bg-white rounded-2xl px-3 sm:px-4 py-2.5 sm:py-3 flex items-center gap-2.5 sm:gap-3 shadow-xl border border-gray-100 max-w-[calc(100%-8px)]"
+                  className="absolute -bottom-5 left-0 sm:-left-6 bg-card rounded-2xl px-3 sm:px-4 py-2.5 sm:py-3 flex items-center gap-2.5 sm:gap-3 shadow-xl border border-card-border max-w-[calc(100%-8px)]"
                   style={{ animation: "fade-up 0.7s ease-out 1.8s both" }}
                 >
                   <div className="w-10 h-10 rounded-full bg-success/10 flex items-center justify-center shrink-0">
                     <Check className="h-5 w-5 text-success" />
                   </div>
                   <div>
-                    <div className="text-sm font-semibold text-gray-900">Stamp added!</div>
-                    <div className="text-xs text-gray-400">
+                    <div className="text-sm font-semibold text-foreground">Stamp added!</div>
+                    <div className="text-xs text-muted-foreground">
                       3 more until your free coffee
                     </div>
                   </div>
@@ -285,7 +296,7 @@ export default function Home() {
       </section>
 
       {/* ━━━ SOCIAL PROOF BAR ━━━ */}
-      <section className="border-y border-gray-100 bg-gray-50/50">
+      <section className="border-y border-card-border bg-muted/50">
         <div className="max-w-6xl mx-auto px-6 py-10">
           <div className="grid grid-cols-2 md:grid-cols-4 gap-8 text-center">
             {[
@@ -295,10 +306,10 @@ export default function Home() {
               { value: 10, suffix: " sec", label: "Customer joins" },
             ].map((stat) => (
               <div key={stat.label}>
-                <div className="text-2xl sm:text-3xl md:text-4xl font-extrabold tracking-tight font-[family-name:var(--font-display)] text-gray-900">
+                <div className="text-2xl sm:text-3xl md:text-4xl font-extrabold tracking-tight font-[family-name:var(--font-display)] text-foreground">
                   <AnimatedNumber target={stat.value} suffix={stat.suffix} />
                 </div>
-                <div className="mt-1 text-sm text-gray-400">{stat.label}</div>
+                <div className="mt-1 text-sm text-muted-foreground">{stat.label}</div>
               </div>
             ))}
           </div>
@@ -306,7 +317,7 @@ export default function Home() {
       </section>
 
       {/* ━━━ SHARE-WORTHY CARDS ━━━ */}
-      <section className="py-24 md:py-32 bg-white">
+      <section className="py-24 md:py-32 bg-card">
         <div className="max-w-6xl mx-auto px-6">
           <SectionHeader
             badge="Designed to impress"
@@ -315,30 +326,30 @@ export default function Home() {
           />
 
           <div className="mt-16 grid md:grid-cols-3 gap-6">
-            <div className="bg-gray-50 border border-gray-100 rounded-3xl p-7 text-center group hover:border-primary/15 transition-all duration-300">
+            <div className="bg-muted border border-card-border rounded-3xl p-7 text-center group hover:border-primary/15 transition-all duration-300">
               <div className="w-12 h-12 rounded-2xl bg-primary/10 flex items-center justify-center mx-auto mb-5">
                 <Heart className="h-6 w-6 text-primary" />
               </div>
-              <h3 className="font-bold font-[family-name:var(--font-display)] text-gray-900">Satisfying to collect</h3>
-              <p className="mt-2 text-sm text-gray-500 leading-relaxed">
+              <h3 className="font-bold font-[family-name:var(--font-display)] text-foreground">Satisfying to collect</h3>
+              <p className="mt-2 text-sm text-muted-foreground leading-relaxed">
                 Premium card designs with smooth animations. Every stamp feels rewarding — customers actually look forward to their next visit.
               </p>
             </div>
-            <div className="bg-gray-50 border border-gray-100 rounded-3xl p-7 text-center group hover:border-primary/15 transition-all duration-300">
+            <div className="bg-muted border border-card-border rounded-3xl p-7 text-center group hover:border-primary/15 transition-all duration-300">
               <div className="w-12 h-12 rounded-2xl bg-success/10 flex items-center justify-center mx-auto mb-5">
                 <Share2 className="h-6 w-6 text-success" />
               </div>
-              <h3 className="font-bold font-[family-name:var(--font-display)] text-gray-900">Built to be shared</h3>
-              <p className="mt-2 text-sm text-gray-500 leading-relaxed">
+              <h3 className="font-bold font-[family-name:var(--font-display)] text-foreground">Built to be shared</h3>
+              <p className="mt-2 text-sm text-muted-foreground leading-relaxed">
                 Beautiful cards get shown to friends. Your customers become your best marketers — word of mouth that actually works.
               </p>
             </div>
-            <div className="bg-gray-50 border border-gray-100 rounded-3xl p-7 text-center group hover:border-primary/15 transition-all duration-300">
+            <div className="bg-muted border border-card-border rounded-3xl p-7 text-center group hover:border-primary/15 transition-all duration-300">
               <div className="w-12 h-12 rounded-2xl bg-warning/10 flex items-center justify-center mx-auto mb-5">
                 <Smartphone className="h-6 w-6 text-warning" />
               </div>
-              <h3 className="font-bold font-[family-name:var(--font-display)] text-gray-900">Always in their wallet</h3>
-              <p className="mt-2 text-sm text-gray-500 leading-relaxed">
+              <h3 className="font-bold font-[family-name:var(--font-display)] text-foreground">Always in their wallet</h3>
+              <p className="mt-2 text-sm text-muted-foreground leading-relaxed">
                 No more lost paper cards. Your loyalty program lives on their phone, right next to their credit cards. Always visible, never forgotten.
               </p>
             </div>
@@ -347,7 +358,7 @@ export default function Home() {
       </section>
 
       {/* ━━━ HOW IT WORKS ━━━ */}
-      <section id="how-it-works" className="py-24 md:py-32 bg-gray-50/50">
+      <section id="how-it-works" className="py-24 md:py-32 bg-muted/50">
         <div className="max-w-6xl mx-auto px-6">
           <SectionHeader
             badge="Simple as 1-2-3"
@@ -389,7 +400,7 @@ export default function Home() {
       </section>
 
       {/* ━━━ FEATURES BENTO GRID ━━━ */}
-      <section className="py-24 md:py-32 bg-white">
+      <section className="py-24 md:py-32 bg-card">
         <div className="max-w-6xl mx-auto px-6">
           <SectionHeader
             badge="Everything you need"
@@ -399,16 +410,16 @@ export default function Home() {
 
           <div className="mt-16 grid md:grid-cols-3 gap-4">
             {/* Large feature card */}
-            <div className="md:col-span-2 bg-gray-50 border border-gray-100 rounded-3xl p-8 md:p-10 relative overflow-hidden group hover:border-primary/20 transition-all duration-500">
+            <div className="md:col-span-2 bg-muted border border-card-border rounded-3xl p-8 md:p-10 relative overflow-hidden group hover:border-primary/20 transition-all duration-500">
               <div className="absolute top-0 right-0 w-64 h-64 bg-gradient-to-bl from-primary/5 to-transparent rounded-full blur-2xl group-hover:from-primary/10 transition-all duration-500" />
               <div className="relative">
                 <div className="w-12 h-12 rounded-2xl bg-primary/10 flex items-center justify-center mb-5">
                   <Smartphone className="h-6 w-6 text-primary" />
                 </div>
-                <h3 className="text-xl font-bold font-[family-name:var(--font-display)] text-gray-900">
+                <h3 className="text-xl font-bold font-[family-name:var(--font-display)] text-foreground">
                   Apple & Google Wallet
                 </h3>
-                <p className="mt-2 text-gray-500 max-w-md leading-relaxed">
+                <p className="mt-2 text-muted-foreground max-w-md leading-relaxed">
                   Cards live right in your customers&apos; phone wallets. Location-based
                   notifications remind them when they&apos;re near your shop. No extra
                   app needed.
@@ -416,22 +427,22 @@ export default function Home() {
 
                 {/* Mini wallet pass preview */}
                 <div className="mt-6 flex flex-col sm:flex-row gap-3">
-                  <div className="bg-white rounded-xl p-3 flex items-center gap-3 text-sm border border-gray-100">
+                  <div className="bg-card rounded-xl p-3 flex items-center gap-3 text-sm border border-card-border">
                     <div className="w-8 h-8 rounded-lg bg-primary flex items-center justify-center text-white shrink-0">
                       <Sparkles className="h-4 w-4" />
                     </div>
                     <div>
-                      <div className="font-semibold text-xs text-gray-900">Blue Cup Cafe</div>
-                      <div className="text-gray-400 text-[11px]">5 of 8 stamps</div>
+                      <div className="font-semibold text-xs text-foreground">Blue Cup Cafe</div>
+                      <div className="text-muted-foreground text-[11px]">5 of 8 stamps</div>
                     </div>
                   </div>
-                  <div className="bg-white rounded-xl p-3 flex items-center gap-3 text-sm border border-gray-100">
+                  <div className="bg-card rounded-xl p-3 flex items-center gap-3 text-sm border border-card-border">
                     <div className="w-8 h-8 rounded-lg bg-emerald-500 flex items-center justify-center text-white shrink-0">
                       <Gift className="h-4 w-4" />
                     </div>
                     <div>
-                      <div className="font-semibold text-xs text-gray-900">Fresh Cuts Salon</div>
-                      <div className="text-gray-400 text-[11px]">Reward ready!</div>
+                      <div className="font-semibold text-xs text-foreground">Fresh Cuts Salon</div>
+                      <div className="text-muted-foreground text-[11px]">Reward ready!</div>
                     </div>
                   </div>
                 </div>
@@ -473,7 +484,7 @@ export default function Home() {
       </section>
 
       {/* ━━━ PRICING ━━━ */}
-      <section id="pricing" className="py-24 md:py-32 bg-gray-50/50">
+      <section id="pricing" className="py-24 md:py-32 bg-muted/50">
         <div className="max-w-6xl mx-auto px-6">
           <SectionHeader
             badge="Simple pricing"
@@ -482,7 +493,7 @@ export default function Home() {
           />
 
           <div className="mt-16 max-w-md mx-auto">
-            <div className="relative bg-white border border-gray-100 rounded-3xl p-6 sm:p-10 text-center overflow-hidden shadow-sm">
+            <div className="relative bg-card border border-card-border rounded-3xl p-6 sm:p-10 text-center overflow-hidden shadow-sm">
               {/* Decorative shimmer */}
               <div className="absolute inset-0 animate-shimmer pointer-events-none" />
 
@@ -493,13 +504,13 @@ export default function Home() {
                 </div>
 
                 <div className="mt-6 flex items-baseline justify-center gap-1">
-                  <span className="text-5xl sm:text-6xl font-extrabold tracking-tight font-[family-name:var(--font-display)] text-gray-900">
+                  <span className="text-5xl sm:text-6xl font-extrabold tracking-tight font-[family-name:var(--font-display)] text-foreground">
                     $10
                   </span>
-                  <span className="text-gray-400 text-lg">/month</span>
+                  <span className="text-muted-foreground text-lg">/month</span>
                 </div>
 
-                <p className="mt-3 text-sm text-gray-400">
+                <p className="mt-3 text-sm text-muted-foreground">
                   Everything you need to run a loyalty program
                 </p>
 
@@ -514,7 +525,7 @@ export default function Home() {
                     "Fraud protection",
                     "Priority support",
                   ].map((feature) => (
-                    <div key={feature} className="flex items-center gap-3 text-sm text-gray-700">
+                    <div key={feature} className="flex items-center gap-3 text-sm text-foreground/80">
                       <div className="w-5 h-5 rounded-full bg-success/10 flex items-center justify-center shrink-0">
                         <Check className="h-3 w-3 text-success" />
                       </div>
@@ -530,7 +541,7 @@ export default function Home() {
                   Start 14-day free trial
                   <ArrowRight className="h-4 w-4" />
                 </Link>
-                <p className="mt-4 text-xs text-gray-400">
+                <p className="mt-4 text-xs text-muted-foreground">
                   Pay with card or Wish. Cancel anytime.
                 </p>
               </div>
@@ -540,13 +551,13 @@ export default function Home() {
       </section>
 
       {/* ━━━ FINAL CTA ━━━ */}
-      <section className="py-24 md:py-32 relative overflow-hidden bg-white">
+      <section className="py-24 md:py-32 relative overflow-hidden bg-card">
         {/* Gradient background */}
         <div className="absolute inset-0 bg-gradient-to-b from-primary/3 via-primary/8 to-primary/3" />
         <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-primary/5 rounded-full blur-3xl" />
 
         <div className="relative max-w-3xl mx-auto px-6 text-center">
-          <h2 className="text-3xl sm:text-4xl md:text-5xl font-extrabold tracking-tight font-[family-name:var(--font-display)] leading-tight text-gray-900">
+          <h2 className="text-3xl sm:text-4xl md:text-5xl font-extrabold tracking-tight font-[family-name:var(--font-display)] leading-tight text-foreground">
             Your customers keep{" "}
             <span className="hidden md:inline"><br /></span>
             coming{" "}
@@ -557,20 +568,20 @@ export default function Home() {
               <span className="absolute -bottom-1 left-0 right-0 h-3 bg-primary/10 rounded-sm -z-0" />
             </span>
           </h2>
-          <p className="mt-6 text-lg text-gray-500 max-w-lg mx-auto leading-relaxed">
+          <p className="mt-6 text-lg text-muted-foreground max-w-lg mx-auto leading-relaxed">
             Join hundreds of local businesses using Stamply to bring customers back,
             again and again.
           </p>
           <div className="mt-10 flex flex-col sm:flex-row gap-4 justify-center">
             <Link
               href="/register"
-              className="inline-flex items-center justify-center gap-2 bg-gray-900 text-white px-8 py-4 rounded-full text-base font-semibold hover:bg-gray-800 transition-all hover:scale-[1.02] active:scale-[0.98]"
+              className="inline-flex items-center justify-center gap-2 bg-gray-900 text-white px-8 py-4 rounded-full text-base font-semibold hover:opacity-90 transition-all hover:scale-[1.02] active:scale-[0.98]"
             >
               Get started — it&apos;s free
               <ArrowRight className="h-4 w-4" />
             </Link>
           </div>
-          <div className="mt-6 flex items-center justify-center gap-6 text-sm text-gray-400">
+          <div className="mt-6 flex items-center justify-center gap-6 text-sm text-muted-foreground">
             <span className="flex items-center gap-1.5">
               <Check className="h-4 w-4 text-success" />
               Free 14-day trial
@@ -584,7 +595,7 @@ export default function Home() {
       </section>
 
       {/* ━━━ FOOTER ━━━ */}
-      <footer className="border-t border-gray-100 bg-gray-50/50">
+      <footer className="border-t border-card-border bg-muted/50">
         <div className="max-w-6xl mx-auto px-6 py-12">
           <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
             <div className="col-span-2">
@@ -592,57 +603,57 @@ export default function Home() {
                 <div className="w-7 h-7 rounded-lg bg-primary flex items-center justify-center">
                   <Sparkles className="h-3.5 w-3.5 text-white" />
                 </div>
-                <span className="font-bold tracking-tight font-[family-name:var(--font-display)] text-gray-900">
+                <span className="font-bold tracking-tight font-[family-name:var(--font-display)] text-foreground">
                   Stamply
                 </span>
               </div>
-              <p className="text-sm text-gray-400 max-w-xs leading-relaxed">
+              <p className="text-sm text-muted-foreground max-w-xs leading-relaxed">
                 Digital loyalty cards for local businesses. Replace punch cards
                 with wallet passes your customers actually love.
               </p>
             </div>
             <div>
-              <h4 className="font-semibold text-sm mb-4 text-gray-900">Product</h4>
-              <ul className="space-y-2.5 text-sm text-gray-400">
+              <h4 className="font-semibold text-sm mb-4 text-foreground">Product</h4>
+              <ul className="space-y-2.5 text-sm text-muted-foreground">
                 <li>
-                  <a href="#how-it-works" className="hover:text-gray-900 transition">
+                  <a href="#how-it-works" className="hover:text-foreground transition">
                     How it works
                   </a>
                 </li>
                 <li>
-                  <a href="#pricing" className="hover:text-gray-900 transition">
+                  <a href="#pricing" className="hover:text-foreground transition">
                     Pricing
                   </a>
                 </li>
                 <li>
-                  <Link href="/register" className="hover:text-gray-900 transition">
+                  <Link href="/register" className="hover:text-foreground transition">
                     Get started
                   </Link>
                 </li>
               </ul>
             </div>
             <div>
-              <h4 className="font-semibold text-sm mb-4 text-gray-900">Company</h4>
-              <ul className="space-y-2.5 text-sm text-gray-400">
+              <h4 className="font-semibold text-sm mb-4 text-foreground">Company</h4>
+              <ul className="space-y-2.5 text-sm text-muted-foreground">
                 <li>
-                  <a href="#" className="hover:text-gray-900 transition">
+                  <a href="#" className="hover:text-foreground transition">
                     About
                   </a>
                 </li>
                 <li>
-                  <a href="#" className="hover:text-gray-900 transition">
+                  <a href="#" className="hover:text-foreground transition">
                     Contact
                   </a>
                 </li>
                 <li>
-                  <a href="#" className="hover:text-gray-900 transition">
+                  <a href="#" className="hover:text-foreground transition">
                     Privacy
                   </a>
                 </li>
               </ul>
             </div>
           </div>
-          <div className="mt-12 pt-6 border-t border-gray-100 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-gray-400">
+          <div className="mt-12 pt-6 border-t border-card-border flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-muted-foreground">
             <span>&copy; {new Date().getFullYear()} Stamply. All rights reserved.</span>
             <span>Built for small businesses with big ambitions.</span>
           </div>
@@ -666,14 +677,14 @@ function SectionHeader({
   const { ref, inView } = useInView();
   return (
     <div ref={ref} className={`text-center max-w-2xl mx-auto transition-all duration-700 ${inView ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"}`}>
-      <div className="inline-flex items-center gap-2 bg-gray-100 border border-gray-200 text-gray-500 text-xs font-semibold px-4 py-1.5 rounded-full mb-4">
+      <div className="inline-flex items-center gap-2 bg-muted border border-card-border text-muted-foreground text-xs font-semibold px-4 py-1.5 rounded-full mb-4">
         <ChevronRight className="h-3 w-3" />
         {badge}
       </div>
-      <h2 className="text-3xl md:text-4xl font-extrabold tracking-tight font-[family-name:var(--font-display)] text-gray-900">
+      <h2 className="text-3xl md:text-4xl font-extrabold tracking-tight font-[family-name:var(--font-display)] text-foreground">
         {title}
       </h2>
-      <p className="mt-4 text-gray-500 leading-relaxed">
+      <p className="mt-4 text-muted-foreground leading-relaxed">
         {subtitle}
       </p>
     </div>
@@ -699,7 +710,7 @@ function StepCard({
   return (
     <div
       ref={ref}
-      className={`relative bg-white border border-gray-100 rounded-3xl p-7 group hover:border-primary/15 transition-all duration-500 ${
+      className={`relative bg-card border border-card-border rounded-3xl p-7 group hover:border-primary/15 transition-all duration-500 ${
         inView ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"
       }`}
       style={{ transitionDelay: `${index * 150}ms` }}
@@ -710,12 +721,12 @@ function StepCard({
           <div className="w-12 h-12 rounded-2xl bg-primary/10 flex items-center justify-center group-hover:bg-primary/15 transition-colors">
             <Icon className="h-5 w-5 text-primary" />
           </div>
-          <span className="text-4xl font-extrabold text-gray-100 font-[family-name:var(--font-display)] group-hover:text-primary/10 transition-colors">
+          <span className="text-4xl font-extrabold text-foreground/5 font-[family-name:var(--font-display)] group-hover:text-primary/10 transition-colors">
             {step}
           </span>
         </div>
-        <h3 className="text-lg font-bold font-[family-name:var(--font-display)] text-gray-900">{title}</h3>
-        <p className="mt-2 text-sm text-gray-500 leading-relaxed">
+        <h3 className="text-lg font-bold font-[family-name:var(--font-display)] text-foreground">{title}</h3>
+        <p className="mt-2 text-sm text-muted-foreground leading-relaxed">
           {description}
         </p>
       </div>
@@ -736,15 +747,15 @@ function FeatureCard({
   return (
     <div
       ref={ref}
-      className={`bg-gray-50 border border-gray-100 rounded-3xl p-7 group hover:border-primary/15 transition-all duration-500 ${
+      className={`bg-muted border border-card-border rounded-3xl p-7 group hover:border-primary/15 transition-all duration-500 ${
         inView ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"
       }`}
     >
       <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center mb-4 group-hover:bg-primary/15 transition-colors">
         <Icon className="h-5 w-5 text-primary" />
       </div>
-      <h3 className="font-bold font-[family-name:var(--font-display)] text-gray-900">{title}</h3>
-      <p className="mt-1.5 text-sm text-gray-500 leading-relaxed">{description}</p>
+      <h3 className="font-bold font-[family-name:var(--font-display)] text-foreground">{title}</h3>
+      <p className="mt-1.5 text-sm text-muted-foreground leading-relaxed">{description}</p>
     </div>
   );
 }

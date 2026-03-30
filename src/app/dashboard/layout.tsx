@@ -12,12 +12,16 @@ import {
   Users,
   LogOut,
   Loader2,
+  Sun,
+  Moon,
 } from "lucide-react";
+import { useTheme } from "@/providers/theme-provider";
 
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
   const router = useRouter();
   const pathname = usePathname();
   const { merchant, isLoading: loading, isUnauthorized, mutateAuth } = useAuth();
+  const { theme, toggleTheme } = useTheme();
 
   useEffect(() => {
     if (isUnauthorized) {
@@ -75,11 +79,22 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
           })}
         </nav>
         <div className="border-t border-foreground/10 pt-4">
-          <div className="text-sm font-medium truncate">{merchant?.businessName}</div>
-          <div className="text-xs text-foreground/40 truncate">{merchant?.email}</div>
+          <div className="flex items-center justify-between mb-3">
+            <div className="min-w-0">
+              <div className="text-sm font-medium truncate">{merchant?.businessName}</div>
+              <div className="text-xs text-foreground/40 truncate">{merchant?.email}</div>
+            </div>
+            <button
+              onClick={toggleTheme}
+              className="p-2 rounded-lg text-foreground/40 hover:text-foreground hover:bg-foreground/5 transition shrink-0"
+              aria-label="Toggle theme"
+            >
+              {theme === "dark" ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
+            </button>
+          </div>
           <button
             onClick={handleLogout}
-            className="mt-3 flex items-center gap-2 text-sm text-foreground/50 hover:text-foreground transition"
+            className="flex items-center gap-2 text-sm text-foreground/50 hover:text-foreground transition"
           >
             <LogOut className="h-4 w-4" />
             Log out
@@ -110,6 +125,13 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
               </Link>
             );
           })}
+          <button
+            onClick={toggleTheme}
+            className="p-2 rounded-lg text-foreground/40 hover:text-foreground transition"
+            aria-label="Toggle theme"
+          >
+            {theme === "dark" ? <Sun className="h-5 w-5" /> : <Moon className="h-5 w-5" />}
+          </button>
         </div>
       </div>
 
