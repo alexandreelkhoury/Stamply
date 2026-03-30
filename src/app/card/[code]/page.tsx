@@ -2,6 +2,7 @@ import { Crown } from "lucide-react";
 import { notFound } from "next/navigation";
 import QrCodeDisplay from "@/components/qr-code-display";
 import StampIconDisplay from "./stamp-icon";
+import WalletButtons from "./wallet-buttons";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000";
 
@@ -74,7 +75,7 @@ export default async function CardPage({ params }: { params: Promise<{ code: str
         <div className="premium-card" style={{ backgroundColor: cardColor }}>
           <div className="relative z-[1] p-7 pb-6">
             {/* Top row: Merchant + Rewards badge */}
-            <div className="flex items-start justify-between mb-6">
+            <div className="flex items-start justify-between mb-5">
               <div>
                 <h1 className="text-[15px] font-semibold tracking-wide text-white/90 uppercase">
                   {card.program.merchant.businessName}
@@ -97,30 +98,45 @@ export default async function CardPage({ params }: { params: Promise<{ code: str
               )}
             </div>
 
-            {/* Stamp Grid */}
-            <div className="grid grid-cols-5 gap-2.5 mb-6">
-              {Array.from({ length: card.program.stampsRequired }).map((_, i) => {
-                const isFilled = i < card.currentStamps;
-                return (
-                  <div
-                    key={i}
-                    className={`stamp-cell aspect-square rounded-xl flex items-center justify-center ${
-                      isFilled ? "stamp-filled" : "stamp-empty"
-                    }`}
-                    style={{ animationDelay: `${0.6 + i * 0.04}s` }}
-                  >
-                    {isFilled ? (
-                      <StampIconDisplay name={card.program.stampIcon || "sparkles"} className="h-4 w-4 text-white drop-shadow-sm" />
-                    ) : (
-                      <span className="text-[11px] font-bold text-white/20">{i + 1}</span>
-                    )}
-                  </div>
-                );
-              })}
+            {/* Stamp Grid + QR Code side by side */}
+            <div className="flex gap-4 mb-5">
+              {/* Stamps */}
+              <div className="flex-1">
+                <div className="grid grid-cols-4 gap-2">
+                  {Array.from({ length: card.program.stampsRequired }).map((_, i) => {
+                    const isFilled = i < card.currentStamps;
+                    return (
+                      <div
+                        key={i}
+                        className={`stamp-cell aspect-square rounded-xl flex items-center justify-center ${
+                          isFilled ? "stamp-filled" : "stamp-empty"
+                        }`}
+                        style={{ animationDelay: `${0.6 + i * 0.04}s` }}
+                      >
+                        {isFilled ? (
+                          <StampIconDisplay name={card.program.stampIcon || "sparkles"} className="h-3.5 w-3.5 text-white drop-shadow-sm" />
+                        ) : (
+                          <span className="text-[10px] font-bold text-white/20">{i + 1}</span>
+                        )}
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+
+              {/* QR Code on the card */}
+              <div className="flex-shrink-0 flex flex-col items-center justify-center">
+                <div className="bg-white rounded-xl p-2">
+                  <QrCodeDisplay code={card.qrCode} size={90} />
+                </div>
+                <p className="text-[8px] text-white/25 mt-1.5 font-mono tracking-wider text-center">
+                  {card.qrCode}
+                </p>
+              </div>
             </div>
 
             {/* Progress Bar */}
-            <div className="mb-4">
+            <div className="mb-3">
               <div className="progress-track h-1.5">
                 <div
                   className="progress-fill h-full"
@@ -152,18 +168,8 @@ export default async function CardPage({ params }: { params: Promise<{ code: str
           </div>
         </div>
 
-        {/* QR Code Section */}
-        <div className="qr-glass p-6 text-center">
-          <p className="text-[11px] uppercase tracking-[0.15em] text-white/30 font-semibold mb-4">
-            Show at checkout
-          </p>
-          <div className="bg-white rounded-2xl p-4 inline-block mx-auto">
-            <QrCodeDisplay code={card.qrCode} />
-          </div>
-          <p className="mt-4 text-[11px] text-white/20 font-mono tracking-wider">
-            {card.qrCode}
-          </p>
-        </div>
+        {/* Wallet Buttons */}
+        <WalletButtons qrCode={card.qrCode} />
 
         {/* Customer identifier */}
         <p className="text-center text-[12px] text-white/20 font-medium tracking-wide">
