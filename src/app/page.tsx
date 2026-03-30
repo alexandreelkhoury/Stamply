@@ -217,7 +217,7 @@ export default function Home() {
                 </span>
                 <span className="flex items-center gap-1.5">
                   <Check className="h-3.5 w-3.5 text-success" />
-                  Card or Wish payments
+                  Card or Whish payments
                 </span>
                 <span className="hidden sm:flex items-center gap-1.5">
                   <Check className="h-3.5 w-3.5 text-success" />
@@ -542,7 +542,7 @@ export default function Home() {
                   <ArrowRight className="h-4 w-4" />
                 </Link>
                 <p className="mt-4 text-xs text-muted-foreground">
-                  Pay with card or Wish. Cancel anytime.
+                  Pay with card or Whish. Cancel anytime.
                 </p>
               </div>
             </div>
