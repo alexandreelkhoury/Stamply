@@ -1,8 +1,9 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useCallback } from "react";
 import { useParams, useRouter } from "next/navigation";
 import Link from "next/link";
+import dynamic from "next/dynamic";
 import useSWR, { useSWRConfig } from "swr";
 import {
   ArrowLeft,
@@ -17,7 +18,6 @@ import {
   LinkIcon,
   Copy,
   Check,
-  QrCode,
   Coffee,
   Scissors,
   ShoppingBag,
@@ -37,6 +37,15 @@ import {
   Music,
 } from "lucide-react";
 import { api } from "@/lib/api";
+import { isEmojiStamp } from "@/app/card/[code]/stamp-icon";
+import QrCodeDisplay from "@/components/qr-code-display";
+import emojiData from "@emoji-mart/data";
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+const EmojiPicker = dynamic(() => import("@emoji-mart/react").then((m) => m.default) as any, {
+  ssr: false,
+  loading: () => <div className="h-[350px] flex items-center justify-center text-foreground/30 text-sm">Loading emojis...</div>,
+}) as any;
 
 const PRESET_COLORS = [
   "#6C63FF", "#3B82F6", "#10B981", "#F59E0B", "#EF4444",
@@ -76,7 +85,7 @@ const STAMP_ICONS = [
 ];
 
 function getStampIcon(value: string) {
-  return STAMP_ICONS.find((s) => s.value === value)?.icon || Sparkles;
+  return STAMP_ICONS.find((s) => s.value === value)?.icon || null;
 }
 
 function getCategoryIcon(value: string) {
@@ -85,6 +94,15 @@ function getCategoryIcon(value: string) {
 
 function getCategoryLabel(value: string) {
   return CATEGORIES.find((c) => c.value === value)?.label || "Other";
+}
+
+function StampPreview({ stampIcon, className }: { stampIcon: string; className?: string }) {
+  const Icon = getStampIcon(stampIcon);
+  if (Icon) return <Icon className={className} />;
+  if (isEmojiStamp(stampIcon)) {
+    return <span className="text-sm leading-none">{stampIcon}</span>;
+  }
+  return <Sparkles className={className} />;
 }
 
 interface Card {
@@ -111,6 +129,7 @@ interface Program {
   category?: string;
   stampIcon?: string;
   enrollmentCode?: string;
+  showAddress?: boolean;
   _count?: { cards: number };
   cards?: Card[];
 }
@@ -136,6 +155,7 @@ export default function ProgramDetailPage() {
   const [success, setSuccess] = useState("");
   const [error, setError] = useState("");
   const [copied, setCopied] = useState(false);
+  const [showQr, setShowQr] = useState(false);
 
   // Edit form state
   const [editName, setEditName] = useState("");
@@ -144,6 +164,12 @@ export default function ProgramDetailPage() {
   const [editColor, setEditColor] = useState("#6C63FF");
   const [editCategory, setEditCategory] = useState("other");
   const [editStampIcon, setEditStampIcon] = useState("sparkles");
+  const [editShowAddress, setEditShowAddress] = useState(false);
+  const [stampTab, setStampTab] = useState<"icons" | "emoji">("icons");
+
+  const handleEmojiSelect = useCallback((emoji: { native: string }) => {
+    setEditStampIcon(emoji.native);
+  }, []);
 
   function startEditing() {
     if (!program) return;
@@ -153,6 +179,8 @@ export default function ProgramDetailPage() {
     setEditColor(program.cardColor);
     setEditCategory(program.category || "other");
     setEditStampIcon(program.stampIcon || "sparkles");
+    setEditShowAddress(program.showAddress ?? false);
+    setStampTab(isEmojiStamp(program.stampIcon || "") ? "emoji" : "icons");
     setEditing(true);
     setError("");
     setSuccess("");
@@ -173,6 +201,7 @@ export default function ProgramDetailPage() {
         cardColor: editColor,
         category: editCategory,
         stampIcon: editStampIcon,
+        showAddress: editShowAddress,
       });
 
       if (ok) {
@@ -219,8 +248,11 @@ export default function ProgramDetailPage() {
   const customerCount = program._count?.cards || program.cards?.length || 0;
   const totalStamps = program.cards?.reduce((sum, c) => sum + c.totalStamps, 0) || 0;
   const totalRewards = program.cards?.reduce((sum, c) => sum + c.rewardsEarned, 0) || 0;
-  const StampIconComponent = getStampIcon(editing ? editStampIcon : (program.stampIcon || "sparkles"));
+  const currentStampIcon = editing ? editStampIcon : (program.stampIcon || "sparkles");
   const CategoryIcon = getCategoryIcon(program.category || "other");
+  const enrollmentUrl = typeof window !== "undefined" && program.enrollmentCode
+    ? `${window.location.origin}/join/${program.enrollmentCode}`
+    : "";
 
   return (
     <div className="max-w-3xl mx-auto">
@@ -256,7 +288,7 @@ export default function ProgramDetailPage() {
         <div className="text-sm text-success bg-success/10 px-3 py-2 rounded-lg mb-4">{success}</div>
       )}
 
-      {/* Enrollment link */}
+      {/* Enrollment link + QR */}
       {!editing && program.enrollmentCode && (
         <div className="border border-foreground/10 rounded-xl p-4 mb-6">
           <div className="flex items-center gap-2 mb-2">
@@ -266,9 +298,9 @@ export default function ProgramDetailPage() {
           <p className="text-xs text-foreground/40 mb-3">
             Share this link or show the QR code so customers can join your program themselves.
           </p>
-          <div className="flex gap-2">
+          <div className="flex gap-2 mb-3">
             <div className="flex-1 bg-foreground/5 rounded-lg px-3 py-2 text-sm font-mono text-foreground/60 truncate">
-              {typeof window !== "undefined" ? `${window.location.origin}/join/${program.enrollmentCode}` : `/join/${program.enrollmentCode}`}
+              {enrollmentUrl || `/join/${program.enrollmentCode}`}
             </div>
             <button
               onClick={copyEnrollmentLink}
@@ -278,6 +310,20 @@ export default function ProgramDetailPage() {
               {copied ? "Copied" : "Copy"}
             </button>
           </div>
+          {/* QR Code toggle */}
+          <button
+            onClick={() => setShowQr(!showQr)}
+            className="text-xs text-primary font-medium hover:underline"
+          >
+            {showQr ? "Hide QR code" : "Show QR code"}
+          </button>
+          {showQr && enrollmentUrl && (
+            <div className="mt-3 flex justify-center">
+              <div className="bg-white rounded-2xl p-4 inline-block">
+                <QrCodeDisplay code={enrollmentUrl} size={200} />
+              </div>
+            </div>
+          )}
         </div>
       )}
 
@@ -311,7 +357,7 @@ export default function ProgramDetailPage() {
                       }`}
                     >
                       {i < filledCount ? (
-                        <StampIconComponent className="h-3.5 w-3.5 text-white drop-shadow-sm" />
+                        <StampPreview stampIcon={currentStampIcon} className="h-3.5 w-3.5 text-white drop-shadow-sm" />
                       ) : (
                         <span className="text-[10px] font-bold text-white/20">{i + 1}</span>
                       )}
@@ -422,28 +468,68 @@ export default function ProgramDetailPage() {
             />
           </div>
 
-          {/* Stamp icon */}
+          {/* Stamp design */}
           <div>
             <label className="block text-sm font-medium mb-3">Stamp design</label>
-            <div className="flex gap-2 flex-wrap">
-              {STAMP_ICONS.map((s) => {
-                const SIcon = s.icon;
-                return (
-                  <button
-                    key={s.value}
-                    type="button"
-                    onClick={() => setEditStampIcon(s.value)}
-                    className={`w-9 h-9 rounded-lg flex items-center justify-center transition-all ${
-                      editStampIcon === s.value
-                        ? "ring-2 ring-offset-2 ring-primary bg-primary/10 text-primary scale-110"
-                        : "bg-foreground/5 text-foreground/40 hover:scale-105"
-                    }`}
-                  >
-                    <SIcon className="h-4 w-4" />
-                  </button>
-                );
-              })}
+            <div className="flex gap-1 bg-foreground/5 rounded-lg p-1 mb-3">
+              <button
+                type="button"
+                onClick={() => setStampTab("icons")}
+                className={`flex-1 text-xs font-medium py-1.5 rounded-md transition ${
+                  stampTab === "icons" ? "bg-card shadow-sm text-foreground" : "text-foreground/50"
+                }`}
+              >
+                Icons
+              </button>
+              <button
+                type="button"
+                onClick={() => setStampTab("emoji")}
+                className={`flex-1 text-xs font-medium py-1.5 rounded-md transition ${
+                  stampTab === "emoji" ? "bg-card shadow-sm text-foreground" : "text-foreground/50"
+                }`}
+              >
+                Emoji
+              </button>
             </div>
+
+            {stampTab === "icons" ? (
+              <div className="flex gap-2 flex-wrap">
+                {STAMP_ICONS.map((s) => {
+                  const SIcon = s.icon;
+                  return (
+                    <button
+                      key={s.value}
+                      type="button"
+                      onClick={() => setEditStampIcon(s.value)}
+                      className={`w-9 h-9 rounded-lg flex items-center justify-center transition-all ${
+                        editStampIcon === s.value
+                          ? "ring-2 ring-offset-2 ring-primary bg-primary/10 text-primary scale-110"
+                          : "bg-foreground/5 text-foreground/40 hover:scale-105"
+                      }`}
+                    >
+                      <SIcon className="h-4 w-4" />
+                    </button>
+                  );
+                })}
+              </div>
+            ) : (
+              <div>
+                {isEmojiStamp(editStampIcon) && (
+                  <div className="mb-3 flex items-center gap-2 text-sm">
+                    <span className="text-lg">{editStampIcon}</span>
+                    <span className="text-foreground/50">Selected</span>
+                  </div>
+                )}
+                <EmojiPicker
+                  data={emojiData}
+                  onEmojiSelect={handleEmojiSelect}
+                  theme="auto"
+                  previewPosition="none"
+                  skinTonePosition="none"
+                  maxFrequentRows={2}
+                />
+              </div>
+            )}
           </div>
 
           <div>
@@ -470,6 +556,20 @@ export default function ProgramDetailPage() {
               />
               <span className="text-sm text-foreground/40">Or pick any color</span>
             </div>
+          </div>
+
+          {/* Show address checkbox */}
+          <div className="flex items-center gap-3">
+            <input
+              type="checkbox"
+              id="editShowAddress"
+              checked={editShowAddress}
+              onChange={(e) => setEditShowAddress(e.target.checked)}
+              className="w-4 h-4 rounded border-foreground/15 text-primary focus:ring-primary/50 cursor-pointer"
+            />
+            <label htmlFor="editShowAddress" className="text-sm font-medium cursor-pointer">
+              Show business address on card
+            </label>
           </div>
 
           <button

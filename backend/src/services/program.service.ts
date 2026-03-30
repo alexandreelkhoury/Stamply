@@ -21,6 +21,7 @@ export const programService = {
     textColor?: string;
     category?: string;
     stampIcon?: string;
+    showAddress?: boolean;
   }) {
     const enrollmentCode = generateQrCode();
     return programRepo.create({
@@ -32,6 +33,7 @@ export const programService = {
       textColor: data.textColor || '#FFFFFF',
       category: data.category || 'other',
       stampIcon: data.stampIcon || 'sparkles',
+      showAddress: data.showAddress ?? false,
       enrollmentCode,
     });
   },

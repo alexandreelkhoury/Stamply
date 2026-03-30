@@ -1,0 +1,1 @@
+ALTER TABLE "programs" ADD COLUMN IF NOT EXISTS "show_address" BOOLEAN NOT NULL DEFAULT false;

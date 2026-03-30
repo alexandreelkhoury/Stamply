@@ -1,7 +1,8 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useCallback } from "react";
 import { useRouter } from "next/navigation";
+import dynamic from "next/dynamic";
 import {
   Loader2, Sparkles, Coffee, Scissors, ShoppingBag, Cpu, PawPrint,
   Flower2, Utensils, Dumbbell, Car, Heart, Star, Gem, Zap, Gift,
@@ -9,6 +10,14 @@ import {
 } from "lucide-react";
 import { api } from "@/lib/api";
 import { useSWRConfig } from "swr";
+import { isEmojiStamp } from "@/app/card/[code]/stamp-icon";
+import data from "@emoji-mart/data";
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+const EmojiPicker = dynamic(() => import("@emoji-mart/react").then((m) => m.default) as any, {
+  ssr: false,
+  loading: () => <div className="h-[350px] flex items-center justify-center text-foreground/30 text-sm">Loading emojis...</div>,
+}) as any;
 
 const PRESET_COLORS = [
   "#6C63FF", "#3B82F6", "#10B981", "#F59E0B", "#EF4444",
@@ -49,7 +58,16 @@ const STAMP_ICONS = [
 
 function getStampIconComponent(value: string) {
   const found = STAMP_ICONS.find((s) => s.value === value);
-  return found ? found.icon : Sparkles;
+  return found ? found.icon : null;
+}
+
+function StampPreview({ stampIcon, className }: { stampIcon: string; className?: string }) {
+  const Icon = getStampIconComponent(stampIcon);
+  if (Icon) return <Icon className={className} />;
+  if (isEmojiStamp(stampIcon)) {
+    return <span className="text-sm leading-none">{stampIcon}</span>;
+  }
+  return <Sparkles className={className} />;
 }
 
 export default function SetupPage() {
@@ -61,8 +79,14 @@ export default function SetupPage() {
   const [cardColor, setCardColor] = useState("#6C63FF");
   const [category, setCategory] = useState("other");
   const [stampIcon, setStampIcon] = useState("sparkles");
+  const [showAddress, setShowAddress] = useState(false);
+  const [stampTab, setStampTab] = useState<"icons" | "emoji">("icons");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+
+  const handleEmojiSelect = useCallback((emoji: { native: string }) => {
+    setStampIcon(emoji.native);
+  }, []);
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -71,7 +95,7 @@ export default function SetupPage() {
 
     try {
       const { ok, data } = await api.post<{ error?: string }>("/api/programs", {
-        name, stampsRequired, rewardText, cardColor, category, stampIcon,
+        name, stampsRequired, rewardText, cardColor, category, stampIcon, showAddress,
       });
 
       if (!ok) {
@@ -87,8 +111,6 @@ export default function SetupPage() {
       setLoading(false);
     }
   }
-
-  const StampIcon = getStampIconComponent(stampIcon);
 
   return (
     <div className="max-w-lg mx-auto">
@@ -164,29 +186,70 @@ export default function SetupPage() {
           />
         </div>
 
-        {/* Stamp icon */}
+        {/* Stamp design */}
         <div>
           <label className="block text-sm font-medium mb-3">Stamp design</label>
-          <div className="flex gap-2 flex-wrap">
-            {STAMP_ICONS.map((s) => {
-              const SIcon = s.icon;
-              return (
-                <button
-                  key={s.value}
-                  type="button"
-                  onClick={() => setStampIcon(s.value)}
-                  className={`w-10 h-10 rounded-lg flex items-center justify-center transition-all ${
-                    stampIcon === s.value
-                      ? "ring-2 ring-offset-2 ring-primary bg-primary/10 text-primary scale-110"
-                      : "bg-foreground/5 text-foreground/40 hover:scale-105 hover:bg-foreground/10"
-                  }`}
-                  title={s.label}
-                >
-                  <SIcon className="h-5 w-5" />
-                </button>
-              );
-            })}
+          {/* Tabs */}
+          <div className="flex gap-1 bg-foreground/5 rounded-lg p-1 mb-3">
+            <button
+              type="button"
+              onClick={() => setStampTab("icons")}
+              className={`flex-1 text-xs font-medium py-1.5 rounded-md transition ${
+                stampTab === "icons" ? "bg-card shadow-sm text-foreground" : "text-foreground/50"
+              }`}
+            >
+              Icons
+            </button>
+            <button
+              type="button"
+              onClick={() => setStampTab("emoji")}
+              className={`flex-1 text-xs font-medium py-1.5 rounded-md transition ${
+                stampTab === "emoji" ? "bg-card shadow-sm text-foreground" : "text-foreground/50"
+              }`}
+            >
+              Emoji
+            </button>
           </div>
+
+          {stampTab === "icons" ? (
+            <div className="flex gap-2 flex-wrap">
+              {STAMP_ICONS.map((s) => {
+                const SIcon = s.icon;
+                return (
+                  <button
+                    key={s.value}
+                    type="button"
+                    onClick={() => setStampIcon(s.value)}
+                    className={`w-10 h-10 rounded-lg flex items-center justify-center transition-all ${
+                      stampIcon === s.value
+                        ? "ring-2 ring-offset-2 ring-primary bg-primary/10 text-primary scale-110"
+                        : "bg-foreground/5 text-foreground/40 hover:scale-105 hover:bg-foreground/10"
+                    }`}
+                    title={s.label}
+                  >
+                    <SIcon className="h-5 w-5" />
+                  </button>
+                );
+              })}
+            </div>
+          ) : (
+            <div>
+              {isEmojiStamp(stampIcon) && (
+                <div className="mb-3 flex items-center gap-2 text-sm">
+                  <span className="text-lg">{stampIcon}</span>
+                  <span className="text-foreground/50">Selected</span>
+                </div>
+              )}
+              <EmojiPicker
+                data={data}
+                onEmojiSelect={handleEmojiSelect}
+                theme="auto"
+                previewPosition="none"
+                skinTonePosition="none"
+                maxFrequentRows={2}
+              />
+            </div>
+          )}
         </div>
 
         <div>
@@ -215,6 +278,20 @@ export default function SetupPage() {
           </div>
         </div>
 
+        {/* Show address checkbox */}
+        <div className="flex items-center gap-3">
+          <input
+            type="checkbox"
+            id="showAddress"
+            checked={showAddress}
+            onChange={(e) => setShowAddress(e.target.checked)}
+            className="w-4 h-4 rounded border-foreground/15 text-primary focus:ring-primary/50 cursor-pointer"
+          />
+          <label htmlFor="showAddress" className="text-sm font-medium cursor-pointer">
+            Show business address on card
+          </label>
+        </div>
+
         {/* Preview */}
         <div>
           <label className="block text-sm font-medium mb-3">Preview</label>
@@ -237,7 +314,7 @@ export default function SetupPage() {
                       }`}
                     >
                       {i < 3 ? (
-                        <StampIcon className="h-3.5 w-3.5 text-white drop-shadow-sm" />
+                        <StampPreview stampIcon={stampIcon} className="h-3.5 w-3.5 text-white drop-shadow-sm" />
                       ) : (
                         <span className="text-[10px] font-bold text-white/20">{i + 1}</span>
                       )}

@@ -47,6 +47,7 @@ export type ProgramMinAggregateOutputType = {
   category: string | null
   stampIcon: string | null
   enrollmentCode: string | null
+  showAddress: boolean | null
   createdAt: Date | null
 }
 
@@ -63,6 +64,7 @@ export type ProgramMaxAggregateOutputType = {
   category: string | null
   stampIcon: string | null
   enrollmentCode: string | null
+  showAddress: boolean | null
   createdAt: Date | null
 }
 
@@ -79,6 +81,7 @@ export type ProgramCountAggregateOutputType = {
   category: number
   stampIcon: number
   enrollmentCode: number
+  showAddress: number
   createdAt: number
   _all: number
 }
@@ -105,6 +108,7 @@ export type ProgramMinAggregateInputType = {
   category?: true
   stampIcon?: true
   enrollmentCode?: true
+  showAddress?: true
   createdAt?: true
 }
 
@@ -121,6 +125,7 @@ export type ProgramMaxAggregateInputType = {
   category?: true
   stampIcon?: true
   enrollmentCode?: true
+  showAddress?: true
   createdAt?: true
 }
 
@@ -137,6 +142,7 @@ export type ProgramCountAggregateInputType = {
   category?: true
   stampIcon?: true
   enrollmentCode?: true
+  showAddress?: true
   createdAt?: true
   _all?: true
 }
@@ -240,6 +246,7 @@ export type ProgramGroupByOutputType = {
   category: string | null
   stampIcon: string | null
   enrollmentCode: string | null
+  showAddress: boolean
   createdAt: Date
   _count: ProgramCountAggregateOutputType | null
   _avg: ProgramAvgAggregateOutputType | null
@@ -279,6 +286,7 @@ export type ProgramWhereInput = {
   category?: Prisma.StringNullableFilter<"Program"> | string | null
   stampIcon?: Prisma.StringNullableFilter<"Program"> | string | null
   enrollmentCode?: Prisma.StringNullableFilter<"Program"> | string | null
+  showAddress?: Prisma.BoolFilter<"Program"> | boolean
   createdAt?: Prisma.DateTimeFilter<"Program"> | Date | string
   merchant?: Prisma.XOR<Prisma.MerchantScalarRelationFilter, Prisma.MerchantWhereInput>
   cards?: Prisma.CardListRelationFilter
@@ -297,6 +305,7 @@ export type ProgramOrderByWithRelationInput = {
   category?: Prisma.SortOrderInput | Prisma.SortOrder
   stampIcon?: Prisma.SortOrderInput | Prisma.SortOrder
   enrollmentCode?: Prisma.SortOrderInput | Prisma.SortOrder
+  showAddress?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   merchant?: Prisma.MerchantOrderByWithRelationInput
   cards?: Prisma.CardOrderByRelationAggregateInput
@@ -318,6 +327,7 @@ export type ProgramWhereUniqueInput = Prisma.AtLeast<{
   iconUrl?: Prisma.StringNullableFilter<"Program"> | string | null
   category?: Prisma.StringNullableFilter<"Program"> | string | null
   stampIcon?: Prisma.StringNullableFilter<"Program"> | string | null
+  showAddress?: Prisma.BoolFilter<"Program"> | boolean
   createdAt?: Prisma.DateTimeFilter<"Program"> | Date | string
   merchant?: Prisma.XOR<Prisma.MerchantScalarRelationFilter, Prisma.MerchantWhereInput>
   cards?: Prisma.CardListRelationFilter
@@ -336,6 +346,7 @@ export type ProgramOrderByWithAggregationInput = {
   category?: Prisma.SortOrderInput | Prisma.SortOrder
   stampIcon?: Prisma.SortOrderInput | Prisma.SortOrder
   enrollmentCode?: Prisma.SortOrderInput | Prisma.SortOrder
+  showAddress?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   _count?: Prisma.ProgramCountOrderByAggregateInput
   _avg?: Prisma.ProgramAvgOrderByAggregateInput
@@ -360,6 +371,7 @@ export type ProgramScalarWhereWithAggregatesInput = {
   category?: Prisma.StringNullableWithAggregatesFilter<"Program"> | string | null
   stampIcon?: Prisma.StringNullableWithAggregatesFilter<"Program"> | string | null
   enrollmentCode?: Prisma.StringNullableWithAggregatesFilter<"Program"> | string | null
+  showAddress?: Prisma.BoolWithAggregatesFilter<"Program"> | boolean
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"Program"> | Date | string
 }
 
@@ -375,6 +387,7 @@ export type ProgramCreateInput = {
   category?: string | null
   stampIcon?: string | null
   enrollmentCode?: string | null
+  showAddress?: boolean
   createdAt?: Date | string
   merchant: Prisma.MerchantCreateNestedOneWithoutProgramsInput
   cards?: Prisma.CardCreateNestedManyWithoutProgramInput
@@ -393,6 +406,7 @@ export type ProgramUncheckedCreateInput = {
   category?: string | null
   stampIcon?: string | null
   enrollmentCode?: string | null
+  showAddress?: boolean
   createdAt?: Date | string
   cards?: Prisma.CardUncheckedCreateNestedManyWithoutProgramInput
 }
@@ -409,6 +423,7 @@ export type ProgramUpdateInput = {
   category?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   stampIcon?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   enrollmentCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  showAddress?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   merchant?: Prisma.MerchantUpdateOneRequiredWithoutProgramsNestedInput
   cards?: Prisma.CardUpdateManyWithoutProgramNestedInput
@@ -427,6 +442,7 @@ export type ProgramUncheckedUpdateInput = {
   category?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   stampIcon?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   enrollmentCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  showAddress?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   cards?: Prisma.CardUncheckedUpdateManyWithoutProgramNestedInput
 }
@@ -444,6 +460,7 @@ export type ProgramCreateManyInput = {
   category?: string | null
   stampIcon?: string | null
   enrollmentCode?: string | null
+  showAddress?: boolean
   createdAt?: Date | string
 }
 
@@ -459,6 +476,7 @@ export type ProgramUpdateManyMutationInput = {
   category?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   stampIcon?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   enrollmentCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  showAddress?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
@@ -475,6 +493,7 @@ export type ProgramUncheckedUpdateManyInput = {
   category?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   stampIcon?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   enrollmentCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  showAddress?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
@@ -501,6 +520,7 @@ export type ProgramCountOrderByAggregateInput = {
   category?: Prisma.SortOrder
   stampIcon?: Prisma.SortOrder
   enrollmentCode?: Prisma.SortOrder
+  showAddress?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
 }
 
@@ -521,6 +541,7 @@ export type ProgramMaxOrderByAggregateInput = {
   category?: Prisma.SortOrder
   stampIcon?: Prisma.SortOrder
   enrollmentCode?: Prisma.SortOrder
+  showAddress?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
 }
 
@@ -537,6 +558,7 @@ export type ProgramMinOrderByAggregateInput = {
   category?: Prisma.SortOrder
   stampIcon?: Prisma.SortOrder
   enrollmentCode?: Prisma.SortOrder
+  showAddress?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
 }
 
@@ -629,6 +651,7 @@ export type ProgramCreateWithoutMerchantInput = {
   category?: string | null
   stampIcon?: string | null
   enrollmentCode?: string | null
+  showAddress?: boolean
   createdAt?: Date | string
   cards?: Prisma.CardCreateNestedManyWithoutProgramInput
 }
@@ -645,6 +668,7 @@ export type ProgramUncheckedCreateWithoutMerchantInput = {
   category?: string | null
   stampIcon?: string | null
   enrollmentCode?: string | null
+  showAddress?: boolean
   createdAt?: Date | string
   cards?: Prisma.CardUncheckedCreateNestedManyWithoutProgramInput
 }
@@ -691,6 +715,7 @@ export type ProgramScalarWhereInput = {
   category?: Prisma.StringNullableFilter<"Program"> | string | null
   stampIcon?: Prisma.StringNullableFilter<"Program"> | string | null
   enrollmentCode?: Prisma.StringNullableFilter<"Program"> | string | null
+  showAddress?: Prisma.BoolFilter<"Program"> | boolean
   createdAt?: Prisma.DateTimeFilter<"Program"> | Date | string
 }
 
@@ -706,6 +731,7 @@ export type ProgramCreateWithoutCardsInput = {
   category?: string | null
   stampIcon?: string | null
   enrollmentCode?: string | null
+  showAddress?: boolean
   createdAt?: Date | string
   merchant: Prisma.MerchantCreateNestedOneWithoutProgramsInput
 }
@@ -723,6 +749,7 @@ export type ProgramUncheckedCreateWithoutCardsInput = {
   category?: string | null
   stampIcon?: string | null
   enrollmentCode?: string | null
+  showAddress?: boolean
   createdAt?: Date | string
 }
 
@@ -754,6 +781,7 @@ export type ProgramUpdateWithoutCardsInput = {
   category?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   stampIcon?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   enrollmentCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  showAddress?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   merchant?: Prisma.MerchantUpdateOneRequiredWithoutProgramsNestedInput
 }
@@ -771,6 +799,7 @@ export type ProgramUncheckedUpdateWithoutCardsInput = {
   category?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   stampIcon?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   enrollmentCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  showAddress?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
@@ -786,6 +815,7 @@ export type ProgramCreateManyMerchantInput = {
   category?: string | null
   stampIcon?: string | null
   enrollmentCode?: string | null
+  showAddress?: boolean
   createdAt?: Date | string
 }
 
@@ -801,6 +831,7 @@ export type ProgramUpdateWithoutMerchantInput = {
   category?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   stampIcon?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   enrollmentCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  showAddress?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   cards?: Prisma.CardUpdateManyWithoutProgramNestedInput
 }
@@ -817,6 +848,7 @@ export type ProgramUncheckedUpdateWithoutMerchantInput = {
   category?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   stampIcon?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   enrollmentCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  showAddress?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   cards?: Prisma.CardUncheckedUpdateManyWithoutProgramNestedInput
 }
@@ -833,6 +865,7 @@ export type ProgramUncheckedUpdateManyWithoutMerchantInput = {
   category?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   stampIcon?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   enrollmentCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  showAddress?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
@@ -880,6 +913,7 @@ export type ProgramSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs 
   category?: boolean
   stampIcon?: boolean
   enrollmentCode?: boolean
+  showAddress?: boolean
   createdAt?: boolean
   merchant?: boolean | Prisma.MerchantDefaultArgs<ExtArgs>
   cards?: boolean | Prisma.Program$cardsArgs<ExtArgs>
@@ -899,6 +933,7 @@ export type ProgramSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Exten
   category?: boolean
   stampIcon?: boolean
   enrollmentCode?: boolean
+  showAddress?: boolean
   createdAt?: boolean
   merchant?: boolean | Prisma.MerchantDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["program"]>
@@ -916,6 +951,7 @@ export type ProgramSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Exten
   category?: boolean
   stampIcon?: boolean
   enrollmentCode?: boolean
+  showAddress?: boolean
   createdAt?: boolean
   merchant?: boolean | Prisma.MerchantDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["program"]>
@@ -933,10 +969,11 @@ export type ProgramSelectScalar = {
   category?: boolean
   stampIcon?: boolean
   enrollmentCode?: boolean
+  showAddress?: boolean
   createdAt?: boolean
 }
 
-export type ProgramOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "merchantId" | "name" | "stampsRequired" | "rewardText" | "isActive" | "cardColor" | "textColor" | "iconUrl" | "category" | "stampIcon" | "enrollmentCode" | "createdAt", ExtArgs["result"]["program"]>
+export type ProgramOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "merchantId" | "name" | "stampsRequired" | "rewardText" | "isActive" | "cardColor" | "textColor" | "iconUrl" | "category" | "stampIcon" | "enrollmentCode" | "showAddress" | "createdAt", ExtArgs["result"]["program"]>
 export type ProgramInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   merchant?: boolean | Prisma.MerchantDefaultArgs<ExtArgs>
   cards?: boolean | Prisma.Program$cardsArgs<ExtArgs>
@@ -968,6 +1005,7 @@ export type $ProgramPayload<ExtArgs extends runtime.Types.Extensions.InternalArg
     category: string | null
     stampIcon: string | null
     enrollmentCode: string | null
+    showAddress: boolean
     createdAt: Date
   }, ExtArgs["result"]["program"]>
   composites: {}
@@ -1406,6 +1444,7 @@ export interface ProgramFieldRefs {
   readonly category: Prisma.FieldRef<"Program", 'String'>
   readonly stampIcon: Prisma.FieldRef<"Program", 'String'>
   readonly enrollmentCode: Prisma.FieldRef<"Program", 'String'>
+  readonly showAddress: Prisma.FieldRef<"Program", 'Boolean'>
   readonly createdAt: Prisma.FieldRef<"Program", 'DateTime'>
 }
     

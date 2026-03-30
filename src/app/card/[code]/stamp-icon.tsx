@@ -13,6 +13,10 @@ const ICONS: Record<string, LucideIcon> = {
   dumbbell: Dumbbell,
 };
 
+export function isEmojiStamp(name: string): boolean {
+  return !!name && !ICONS[name];
+}
+
 export default function StampIconDisplay({
   name,
   className,
@@ -20,6 +24,17 @@ export default function StampIconDisplay({
   name: string;
   className?: string;
 }) {
-  const Icon = ICONS[name] || Sparkles;
-  return <Icon className={className} />;
+  const Icon = ICONS[name];
+  if (Icon) {
+    return <Icon className={className} />;
+  }
+  // Render as emoji
+  return (
+    <span
+      className="inline-flex items-center justify-center leading-none"
+      style={{ fontSize: "inherit" }}
+    >
+      {name}
+    </span>
+  );
 }

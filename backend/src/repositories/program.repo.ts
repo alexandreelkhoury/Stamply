@@ -44,6 +44,7 @@ export const programRepo = {
     textColor: string;
     category?: string;
     stampIcon?: string;
+    showAddress?: boolean;
     enrollmentCode?: string;
   }) {
     return db.program.create({ data });

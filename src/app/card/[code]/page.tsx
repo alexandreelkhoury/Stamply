@@ -1,6 +1,6 @@
 import { Crown } from "lucide-react";
 import { notFound } from "next/navigation";
-import QrCodeDisplay from "./qr-code-display";
+import QrCodeDisplay from "@/components/qr-code-display";
 import StampIconDisplay from "./stamp-icon";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000";
@@ -19,9 +19,12 @@ interface CardData {
       cardColor: string;
       textColor: string;
       stampIcon?: string;
+      showAddress?: boolean;
       merchant: {
         businessName: string;
         logoUrl: string | null;
+        address: string | null;
+        city: string | null;
       };
     };
     customer: {
@@ -79,6 +82,12 @@ export default async function CardPage({ params }: { params: Promise<{ code: str
                 <p className="text-[13px] text-white/45 mt-0.5 font-medium">
                   {card.program.name}
                 </p>
+                {card.program.showAddress && card.program.merchant.address && (
+                  <p className="text-[11px] text-white/30 mt-0.5">
+                    {card.program.merchant.address}
+                    {card.program.merchant.city && `, ${card.program.merchant.city}`}
+                  </p>
+                )}
               </div>
               {card.rewardsEarned > 0 && (
                 <div className="reward-badge flex items-center gap-1.5 bg-amber-400/20 text-amber-200 px-3 py-1.5 rounded-full text-xs font-bold border border-amber-400/20">

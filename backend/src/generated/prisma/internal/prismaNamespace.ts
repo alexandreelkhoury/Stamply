@@ -848,6 +848,7 @@ export const ProgramScalarFieldEnum = {
   category: 'category',
   stampIcon: 'stampIcon',
   enrollmentCode: 'enrollmentCode',
+  showAddress: 'showAddress',
   createdAt: 'createdAt'
 } as const
 
