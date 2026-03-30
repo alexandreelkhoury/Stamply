@@ -1,6 +1,18 @@
 "use client";
 
-import { Users, Stamp, Gift, TrendingUp, Loader2, Plus, CreditCard } from "lucide-react";
+import {
+  Users, Stamp, Gift, TrendingUp, Loader2, Plus,
+  Coffee, Scissors, ShoppingBag, Cpu, PawPrint, Flower2,
+  Utensils, Dumbbell, Car, Heart, Star,
+} from "lucide-react";
+import type { LucideIcon } from "lucide-react";
+
+const CATEGORY_ICONS: Record<string, LucideIcon> = {
+  coffee: Coffee, food: Utensils, beauty: Scissors,
+  retail: ShoppingBag, fitness: Dumbbell, electronics: Cpu,
+  pets: PawPrint, plants: Flower2, auto: Car, health: Heart,
+  other: Star,
+};
 import Link from "next/link";
 import { useAnalytics } from "@/hooks/use-analytics";
 import { usePrograms } from "@/hooks/use-programs";
@@ -85,12 +97,17 @@ export default function DashboardPage() {
               <div className="h-2" style={{ backgroundColor: program.cardColor }} />
               <div className="p-5">
                 <div className="flex items-center gap-3 mb-3">
-                  <div
-                    className="w-10 h-10 rounded-lg flex items-center justify-center"
-                    style={{ backgroundColor: program.cardColor }}
-                  >
-                    <CreditCard className="h-5 w-5 text-white" />
-                  </div>
+                  {(() => {
+                    const Icon = CATEGORY_ICONS[(program as unknown as Record<string, unknown>).category as string] || Star;
+                    return (
+                      <div
+                        className="w-10 h-10 rounded-lg flex items-center justify-center"
+                        style={{ backgroundColor: program.cardColor }}
+                      >
+                        <Icon className="h-5 w-5 text-white" />
+                      </div>
+                    );
+                  })()}
                   <div>
                     <h3 className="font-medium group-hover:text-primary transition">{program.name}</h3>
                     <p className="text-xs text-foreground/40">

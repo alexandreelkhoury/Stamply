@@ -1,6 +1,7 @@
-import { Crown, Sparkles } from "lucide-react";
+import { Crown } from "lucide-react";
 import { notFound } from "next/navigation";
 import QrCodeDisplay from "./qr-code-display";
+import StampIconDisplay from "./stamp-icon";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000";
 
@@ -17,6 +18,7 @@ interface CardData {
       rewardText: string;
       cardColor: string;
       textColor: string;
+      stampIcon?: string;
       merchant: {
         businessName: string;
         logoUrl: string | null;
@@ -99,7 +101,7 @@ export default async function CardPage({ params }: { params: Promise<{ code: str
                     style={{ animationDelay: `${0.6 + i * 0.04}s` }}
                   >
                     {isFilled ? (
-                      <Sparkles className="h-4 w-4 text-white drop-shadow-sm" />
+                      <StampIconDisplay name={card.program.stampIcon || "sparkles"} className="h-4 w-4 text-white drop-shadow-sm" />
                     ) : (
                       <span className="text-[11px] font-bold text-white/20">{i + 1}</span>
                     )}

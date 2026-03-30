@@ -42,6 +42,9 @@ export const programRepo = {
     rewardText: string;
     cardColor: string;
     textColor: string;
+    category?: string;
+    stampIcon?: string;
+    enrollmentCode?: string;
   }) {
     return db.program.create({ data });
   },
@@ -61,6 +64,22 @@ export const programRepo = {
     return db.program.findMany({
       where: { merchantId },
       select: { id: true },
+    });
+  },
+
+  findByEnrollmentCode(code: string) {
+    return db.program.findFirst({
+      where: { enrollmentCode: code, isActive: true },
+      include: {
+        merchant: { select: { businessName: true } },
+      },
+    });
+  },
+
+  updateEnrollmentCode(id: string, enrollmentCode: string) {
+    return db.program.update({
+      where: { id },
+      data: { enrollmentCode },
     });
   },
 };

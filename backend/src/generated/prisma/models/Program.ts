@@ -44,6 +44,9 @@ export type ProgramMinAggregateOutputType = {
   cardColor: string | null
   textColor: string | null
   iconUrl: string | null
+  category: string | null
+  stampIcon: string | null
+  enrollmentCode: string | null
   createdAt: Date | null
 }
 
@@ -57,6 +60,9 @@ export type ProgramMaxAggregateOutputType = {
   cardColor: string | null
   textColor: string | null
   iconUrl: string | null
+  category: string | null
+  stampIcon: string | null
+  enrollmentCode: string | null
   createdAt: Date | null
 }
 
@@ -70,6 +76,9 @@ export type ProgramCountAggregateOutputType = {
   cardColor: number
   textColor: number
   iconUrl: number
+  category: number
+  stampIcon: number
+  enrollmentCode: number
   createdAt: number
   _all: number
 }
@@ -93,6 +102,9 @@ export type ProgramMinAggregateInputType = {
   cardColor?: true
   textColor?: true
   iconUrl?: true
+  category?: true
+  stampIcon?: true
+  enrollmentCode?: true
   createdAt?: true
 }
 
@@ -106,6 +118,9 @@ export type ProgramMaxAggregateInputType = {
   cardColor?: true
   textColor?: true
   iconUrl?: true
+  category?: true
+  stampIcon?: true
+  enrollmentCode?: true
   createdAt?: true
 }
 
@@ -119,6 +134,9 @@ export type ProgramCountAggregateInputType = {
   cardColor?: true
   textColor?: true
   iconUrl?: true
+  category?: true
+  stampIcon?: true
+  enrollmentCode?: true
   createdAt?: true
   _all?: true
 }
@@ -219,6 +237,9 @@ export type ProgramGroupByOutputType = {
   cardColor: string
   textColor: string
   iconUrl: string | null
+  category: string | null
+  stampIcon: string | null
+  enrollmentCode: string | null
   createdAt: Date
   _count: ProgramCountAggregateOutputType | null
   _avg: ProgramAvgAggregateOutputType | null
@@ -255,6 +276,9 @@ export type ProgramWhereInput = {
   cardColor?: Prisma.StringFilter<"Program"> | string
   textColor?: Prisma.StringFilter<"Program"> | string
   iconUrl?: Prisma.StringNullableFilter<"Program"> | string | null
+  category?: Prisma.StringNullableFilter<"Program"> | string | null
+  stampIcon?: Prisma.StringNullableFilter<"Program"> | string | null
+  enrollmentCode?: Prisma.StringNullableFilter<"Program"> | string | null
   createdAt?: Prisma.DateTimeFilter<"Program"> | Date | string
   merchant?: Prisma.XOR<Prisma.MerchantScalarRelationFilter, Prisma.MerchantWhereInput>
   cards?: Prisma.CardListRelationFilter
@@ -270,6 +294,9 @@ export type ProgramOrderByWithRelationInput = {
   cardColor?: Prisma.SortOrder
   textColor?: Prisma.SortOrder
   iconUrl?: Prisma.SortOrderInput | Prisma.SortOrder
+  category?: Prisma.SortOrderInput | Prisma.SortOrder
+  stampIcon?: Prisma.SortOrderInput | Prisma.SortOrder
+  enrollmentCode?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   merchant?: Prisma.MerchantOrderByWithRelationInput
   cards?: Prisma.CardOrderByRelationAggregateInput
@@ -277,6 +304,7 @@ export type ProgramOrderByWithRelationInput = {
 
 export type ProgramWhereUniqueInput = Prisma.AtLeast<{
   id?: string
+  enrollmentCode?: string
   AND?: Prisma.ProgramWhereInput | Prisma.ProgramWhereInput[]
   OR?: Prisma.ProgramWhereInput[]
   NOT?: Prisma.ProgramWhereInput | Prisma.ProgramWhereInput[]
@@ -288,10 +316,12 @@ export type ProgramWhereUniqueInput = Prisma.AtLeast<{
   cardColor?: Prisma.StringFilter<"Program"> | string
   textColor?: Prisma.StringFilter<"Program"> | string
   iconUrl?: Prisma.StringNullableFilter<"Program"> | string | null
+  category?: Prisma.StringNullableFilter<"Program"> | string | null
+  stampIcon?: Prisma.StringNullableFilter<"Program"> | string | null
   createdAt?: Prisma.DateTimeFilter<"Program"> | Date | string
   merchant?: Prisma.XOR<Prisma.MerchantScalarRelationFilter, Prisma.MerchantWhereInput>
   cards?: Prisma.CardListRelationFilter
-}, "id">
+}, "id" | "enrollmentCode">
 
 export type ProgramOrderByWithAggregationInput = {
   id?: Prisma.SortOrder
@@ -303,6 +333,9 @@ export type ProgramOrderByWithAggregationInput = {
   cardColor?: Prisma.SortOrder
   textColor?: Prisma.SortOrder
   iconUrl?: Prisma.SortOrderInput | Prisma.SortOrder
+  category?: Prisma.SortOrderInput | Prisma.SortOrder
+  stampIcon?: Prisma.SortOrderInput | Prisma.SortOrder
+  enrollmentCode?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   _count?: Prisma.ProgramCountOrderByAggregateInput
   _avg?: Prisma.ProgramAvgOrderByAggregateInput
@@ -324,6 +357,9 @@ export type ProgramScalarWhereWithAggregatesInput = {
   cardColor?: Prisma.StringWithAggregatesFilter<"Program"> | string
   textColor?: Prisma.StringWithAggregatesFilter<"Program"> | string
   iconUrl?: Prisma.StringNullableWithAggregatesFilter<"Program"> | string | null
+  category?: Prisma.StringNullableWithAggregatesFilter<"Program"> | string | null
+  stampIcon?: Prisma.StringNullableWithAggregatesFilter<"Program"> | string | null
+  enrollmentCode?: Prisma.StringNullableWithAggregatesFilter<"Program"> | string | null
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"Program"> | Date | string
 }
 
@@ -336,6 +372,9 @@ export type ProgramCreateInput = {
   cardColor?: string
   textColor?: string
   iconUrl?: string | null
+  category?: string | null
+  stampIcon?: string | null
+  enrollmentCode?: string | null
   createdAt?: Date | string
   merchant: Prisma.MerchantCreateNestedOneWithoutProgramsInput
   cards?: Prisma.CardCreateNestedManyWithoutProgramInput
@@ -351,6 +390,9 @@ export type ProgramUncheckedCreateInput = {
   cardColor?: string
   textColor?: string
   iconUrl?: string | null
+  category?: string | null
+  stampIcon?: string | null
+  enrollmentCode?: string | null
   createdAt?: Date | string
   cards?: Prisma.CardUncheckedCreateNestedManyWithoutProgramInput
 }
@@ -364,6 +406,9 @@ export type ProgramUpdateInput = {
   cardColor?: Prisma.StringFieldUpdateOperationsInput | string
   textColor?: Prisma.StringFieldUpdateOperationsInput | string
   iconUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  category?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  stampIcon?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  enrollmentCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   merchant?: Prisma.MerchantUpdateOneRequiredWithoutProgramsNestedInput
   cards?: Prisma.CardUpdateManyWithoutProgramNestedInput
@@ -379,6 +424,9 @@ export type ProgramUncheckedUpdateInput = {
   cardColor?: Prisma.StringFieldUpdateOperationsInput | string
   textColor?: Prisma.StringFieldUpdateOperationsInput | string
   iconUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  category?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  stampIcon?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  enrollmentCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   cards?: Prisma.CardUncheckedUpdateManyWithoutProgramNestedInput
 }
@@ -393,6 +441,9 @@ export type ProgramCreateManyInput = {
   cardColor?: string
   textColor?: string
   iconUrl?: string | null
+  category?: string | null
+  stampIcon?: string | null
+  enrollmentCode?: string | null
   createdAt?: Date | string
 }
 
@@ -405,6 +456,9 @@ export type ProgramUpdateManyMutationInput = {
   cardColor?: Prisma.StringFieldUpdateOperationsInput | string
   textColor?: Prisma.StringFieldUpdateOperationsInput | string
   iconUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  category?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  stampIcon?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  enrollmentCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
@@ -418,6 +472,9 @@ export type ProgramUncheckedUpdateManyInput = {
   cardColor?: Prisma.StringFieldUpdateOperationsInput | string
   textColor?: Prisma.StringFieldUpdateOperationsInput | string
   iconUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  category?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  stampIcon?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  enrollmentCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
@@ -441,6 +498,9 @@ export type ProgramCountOrderByAggregateInput = {
   cardColor?: Prisma.SortOrder
   textColor?: Prisma.SortOrder
   iconUrl?: Prisma.SortOrder
+  category?: Prisma.SortOrder
+  stampIcon?: Prisma.SortOrder
+  enrollmentCode?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
 }
 
@@ -458,6 +518,9 @@ export type ProgramMaxOrderByAggregateInput = {
   cardColor?: Prisma.SortOrder
   textColor?: Prisma.SortOrder
   iconUrl?: Prisma.SortOrder
+  category?: Prisma.SortOrder
+  stampIcon?: Prisma.SortOrder
+  enrollmentCode?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
 }
 
@@ -471,6 +534,9 @@ export type ProgramMinOrderByAggregateInput = {
   cardColor?: Prisma.SortOrder
   textColor?: Prisma.SortOrder
   iconUrl?: Prisma.SortOrder
+  category?: Prisma.SortOrder
+  stampIcon?: Prisma.SortOrder
+  enrollmentCode?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
 }
 
@@ -560,6 +626,9 @@ export type ProgramCreateWithoutMerchantInput = {
   cardColor?: string
   textColor?: string
   iconUrl?: string | null
+  category?: string | null
+  stampIcon?: string | null
+  enrollmentCode?: string | null
   createdAt?: Date | string
   cards?: Prisma.CardCreateNestedManyWithoutProgramInput
 }
@@ -573,6 +642,9 @@ export type ProgramUncheckedCreateWithoutMerchantInput = {
   cardColor?: string
   textColor?: string
   iconUrl?: string | null
+  category?: string | null
+  stampIcon?: string | null
+  enrollmentCode?: string | null
   createdAt?: Date | string
   cards?: Prisma.CardUncheckedCreateNestedManyWithoutProgramInput
 }
@@ -616,6 +688,9 @@ export type ProgramScalarWhereInput = {
   cardColor?: Prisma.StringFilter<"Program"> | string
   textColor?: Prisma.StringFilter<"Program"> | string
   iconUrl?: Prisma.StringNullableFilter<"Program"> | string | null
+  category?: Prisma.StringNullableFilter<"Program"> | string | null
+  stampIcon?: Prisma.StringNullableFilter<"Program"> | string | null
+  enrollmentCode?: Prisma.StringNullableFilter<"Program"> | string | null
   createdAt?: Prisma.DateTimeFilter<"Program"> | Date | string
 }
 
@@ -628,6 +703,9 @@ export type ProgramCreateWithoutCardsInput = {
   cardColor?: string
   textColor?: string
   iconUrl?: string | null
+  category?: string | null
+  stampIcon?: string | null
+  enrollmentCode?: string | null
   createdAt?: Date | string
   merchant: Prisma.MerchantCreateNestedOneWithoutProgramsInput
 }
@@ -642,6 +720,9 @@ export type ProgramUncheckedCreateWithoutCardsInput = {
   cardColor?: string
   textColor?: string
   iconUrl?: string | null
+  category?: string | null
+  stampIcon?: string | null
+  enrollmentCode?: string | null
   createdAt?: Date | string
 }
 
@@ -670,6 +751,9 @@ export type ProgramUpdateWithoutCardsInput = {
   cardColor?: Prisma.StringFieldUpdateOperationsInput | string
   textColor?: Prisma.StringFieldUpdateOperationsInput | string
   iconUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  category?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  stampIcon?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  enrollmentCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   merchant?: Prisma.MerchantUpdateOneRequiredWithoutProgramsNestedInput
 }
@@ -684,6 +768,9 @@ export type ProgramUncheckedUpdateWithoutCardsInput = {
   cardColor?: Prisma.StringFieldUpdateOperationsInput | string
   textColor?: Prisma.StringFieldUpdateOperationsInput | string
   iconUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  category?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  stampIcon?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  enrollmentCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
@@ -696,6 +783,9 @@ export type ProgramCreateManyMerchantInput = {
   cardColor?: string
   textColor?: string
   iconUrl?: string | null
+  category?: string | null
+  stampIcon?: string | null
+  enrollmentCode?: string | null
   createdAt?: Date | string
 }
 
@@ -708,6 +798,9 @@ export type ProgramUpdateWithoutMerchantInput = {
   cardColor?: Prisma.StringFieldUpdateOperationsInput | string
   textColor?: Prisma.StringFieldUpdateOperationsInput | string
   iconUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  category?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  stampIcon?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  enrollmentCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   cards?: Prisma.CardUpdateManyWithoutProgramNestedInput
 }
@@ -721,6 +814,9 @@ export type ProgramUncheckedUpdateWithoutMerchantInput = {
   cardColor?: Prisma.StringFieldUpdateOperationsInput | string
   textColor?: Prisma.StringFieldUpdateOperationsInput | string
   iconUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  category?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  stampIcon?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  enrollmentCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   cards?: Prisma.CardUncheckedUpdateManyWithoutProgramNestedInput
 }
@@ -734,6 +830,9 @@ export type ProgramUncheckedUpdateManyWithoutMerchantInput = {
   cardColor?: Prisma.StringFieldUpdateOperationsInput | string
   textColor?: Prisma.StringFieldUpdateOperationsInput | string
   iconUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  category?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  stampIcon?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  enrollmentCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
@@ -778,6 +877,9 @@ export type ProgramSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs 
   cardColor?: boolean
   textColor?: boolean
   iconUrl?: boolean
+  category?: boolean
+  stampIcon?: boolean
+  enrollmentCode?: boolean
   createdAt?: boolean
   merchant?: boolean | Prisma.MerchantDefaultArgs<ExtArgs>
   cards?: boolean | Prisma.Program$cardsArgs<ExtArgs>
@@ -794,6 +896,9 @@ export type ProgramSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Exten
   cardColor?: boolean
   textColor?: boolean
   iconUrl?: boolean
+  category?: boolean
+  stampIcon?: boolean
+  enrollmentCode?: boolean
   createdAt?: boolean
   merchant?: boolean | Prisma.MerchantDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["program"]>
@@ -808,6 +913,9 @@ export type ProgramSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Exten
   cardColor?: boolean
   textColor?: boolean
   iconUrl?: boolean
+  category?: boolean
+  stampIcon?: boolean
+  enrollmentCode?: boolean
   createdAt?: boolean
   merchant?: boolean | Prisma.MerchantDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["program"]>
@@ -822,10 +930,13 @@ export type ProgramSelectScalar = {
   cardColor?: boolean
   textColor?: boolean
   iconUrl?: boolean
+  category?: boolean
+  stampIcon?: boolean
+  enrollmentCode?: boolean
   createdAt?: boolean
 }
 
-export type ProgramOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "merchantId" | "name" | "stampsRequired" | "rewardText" | "isActive" | "cardColor" | "textColor" | "iconUrl" | "createdAt", ExtArgs["result"]["program"]>
+export type ProgramOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "merchantId" | "name" | "stampsRequired" | "rewardText" | "isActive" | "cardColor" | "textColor" | "iconUrl" | "category" | "stampIcon" | "enrollmentCode" | "createdAt", ExtArgs["result"]["program"]>
 export type ProgramInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   merchant?: boolean | Prisma.MerchantDefaultArgs<ExtArgs>
   cards?: boolean | Prisma.Program$cardsArgs<ExtArgs>
@@ -854,6 +965,9 @@ export type $ProgramPayload<ExtArgs extends runtime.Types.Extensions.InternalArg
     cardColor: string
     textColor: string
     iconUrl: string | null
+    category: string | null
+    stampIcon: string | null
+    enrollmentCode: string | null
     createdAt: Date
   }, ExtArgs["result"]["program"]>
   composites: {}
@@ -1289,6 +1403,9 @@ export interface ProgramFieldRefs {
   readonly cardColor: Prisma.FieldRef<"Program", 'String'>
   readonly textColor: Prisma.FieldRef<"Program", 'String'>
   readonly iconUrl: Prisma.FieldRef<"Program", 'String'>
+  readonly category: Prisma.FieldRef<"Program", 'String'>
+  readonly stampIcon: Prisma.FieldRef<"Program", 'String'>
+  readonly enrollmentCode: Prisma.FieldRef<"Program", 'String'>
   readonly createdAt: Prisma.FieldRef<"Program", 'DateTime'>
 }
     

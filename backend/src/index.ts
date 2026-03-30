@@ -8,6 +8,7 @@ import customerRoutes from './routes/customers';
 import stampRoutes from './routes/stamps';
 import analyticsRoutes from './routes/analytics';
 import cardRoutes from './routes/cards';
+import enrollRoutes from './routes/enroll';
 import { AppError } from './types';
 
 const app = express();
@@ -32,6 +33,7 @@ app.use('/api/customers', customerRoutes);
 app.use('/api/stamps', stampRoutes);
 app.use('/api/analytics', analyticsRoutes);
 app.use('/api/cards', cardRoutes);
+app.use('/api/enroll', enrollRoutes);
 
 // #15: Global error handler — catches unhandled errors, no stack trace leak
 app.use((err: Error, _req: Request, res: Response, _next: NextFunction) => {

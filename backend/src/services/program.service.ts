@@ -1,5 +1,6 @@
 import { programRepo } from '../repositories/program.repo';
 import { NotFoundError } from '../types';
+import { generateQrCode } from '../lib/utils';
 
 export const programService = {
   async list(merchantId: string) {
@@ -18,7 +19,10 @@ export const programService = {
     rewardText: string;
     cardColor?: string;
     textColor?: string;
+    category?: string;
+    stampIcon?: string;
   }) {
+    const enrollmentCode = generateQrCode();
     return programRepo.create({
       merchantId,
       name: data.name,
@@ -26,6 +30,9 @@ export const programService = {
       rewardText: data.rewardText,
       cardColor: data.cardColor || '#6C63FF',
       textColor: data.textColor || '#FFFFFF',
+      category: data.category || 'other',
+      stampIcon: data.stampIcon || 'sparkles',
+      enrollmentCode,
     });
   },
 

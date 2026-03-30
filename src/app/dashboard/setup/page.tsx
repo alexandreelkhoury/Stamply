@@ -2,7 +2,11 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { Loader2, Sparkles } from "lucide-react";
+import {
+  Loader2, Sparkles, Coffee, Scissors, ShoppingBag, Cpu, PawPrint,
+  Flower2, Utensils, Dumbbell, Car, Heart, Star, Gem, Zap, Gift,
+  Sun, Moon, Crown, Music,
+} from "lucide-react";
 import { api } from "@/lib/api";
 import { useSWRConfig } from "swr";
 
@@ -11,6 +15,43 @@ const PRESET_COLORS = [
   "#8B5CF6", "#EC4899", "#14B8A6", "#F97316", "#1F2937",
 ];
 
+const CATEGORIES = [
+  { value: "coffee", label: "Coffee & Tea", icon: Coffee },
+  { value: "food", label: "Food & Drinks", icon: Utensils },
+  { value: "beauty", label: "Beauty & Salon", icon: Scissors },
+  { value: "retail", label: "Retail & Shopping", icon: ShoppingBag },
+  { value: "fitness", label: "Fitness & Gym", icon: Dumbbell },
+  { value: "electronics", label: "Electronics", icon: Cpu },
+  { value: "pets", label: "Pets", icon: PawPrint },
+  { value: "plants", label: "Plants & Garden", icon: Flower2 },
+  { value: "auto", label: "Auto & Car Care", icon: Car },
+  { value: "health", label: "Health & Wellness", icon: Heart },
+  { value: "other", label: "Other", icon: Star },
+];
+
+const STAMP_ICONS = [
+  { value: "sparkles", label: "Sparkles", icon: Sparkles },
+  { value: "star", label: "Star", icon: Star },
+  { value: "heart", label: "Heart", icon: Heart },
+  { value: "gem", label: "Gem", icon: Gem },
+  { value: "zap", label: "Zap", icon: Zap },
+  { value: "gift", label: "Gift", icon: Gift },
+  { value: "sun", label: "Sun", icon: Sun },
+  { value: "moon", label: "Moon", icon: Moon },
+  { value: "crown", label: "Crown", icon: Crown },
+  { value: "music", label: "Music", icon: Music },
+  { value: "coffee", label: "Coffee", icon: Coffee },
+  { value: "flower", label: "Flower", icon: Flower2 },
+  { value: "paw", label: "Paw", icon: PawPrint },
+  { value: "scissors", label: "Scissors", icon: Scissors },
+  { value: "dumbbell", label: "Dumbbell", icon: Dumbbell },
+];
+
+function getStampIconComponent(value: string) {
+  const found = STAMP_ICONS.find((s) => s.value === value);
+  return found ? found.icon : Sparkles;
+}
+
 export default function SetupPage() {
   const router = useRouter();
   const { mutate } = useSWRConfig();
@@ -18,6 +59,8 @@ export default function SetupPage() {
   const [stampsRequired, setStampsRequired] = useState("8");
   const [rewardText, setRewardText] = useState("");
   const [cardColor, setCardColor] = useState("#6C63FF");
+  const [category, setCategory] = useState("other");
+  const [stampIcon, setStampIcon] = useState("sparkles");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
@@ -27,7 +70,9 @@ export default function SetupPage() {
     setLoading(true);
 
     try {
-      const { ok, data } = await api.post<{ error?: string }>("/api/programs", { name, stampsRequired, rewardText, cardColor });
+      const { ok, data } = await api.post<{ error?: string }>("/api/programs", {
+        name, stampsRequired, rewardText, cardColor, category, stampIcon,
+      });
 
       if (!ok) {
         setError(data.error || "Failed to create program");
@@ -42,6 +87,8 @@ export default function SetupPage() {
       setLoading(false);
     }
   }
+
+  const StampIcon = getStampIconComponent(stampIcon);
 
   return (
     <div className="max-w-lg mx-auto">
@@ -63,6 +110,31 @@ export default function SetupPage() {
             placeholder="Coffee Loyalty"
             required
           />
+        </div>
+
+        {/* Category */}
+        <div>
+          <label className="block text-sm font-medium mb-3">Category</label>
+          <div className="grid grid-cols-3 sm:grid-cols-4 gap-2">
+            {CATEGORIES.map((cat) => {
+              const CatIcon = cat.icon;
+              return (
+                <button
+                  key={cat.value}
+                  type="button"
+                  onClick={() => setCategory(cat.value)}
+                  className={`flex flex-col items-center gap-1.5 p-3 rounded-xl border text-xs font-medium transition-all ${
+                    category === cat.value
+                      ? "border-primary bg-primary/5 text-primary"
+                      : "border-foreground/10 text-foreground/50 hover:border-foreground/20"
+                  }`}
+                >
+                  <CatIcon className="h-5 w-5" />
+                  {cat.label}
+                </button>
+              );
+            })}
+          </div>
         </div>
 
         <div>
@@ -90,6 +162,31 @@ export default function SetupPage() {
             placeholder="Free coffee"
             required
           />
+        </div>
+
+        {/* Stamp icon */}
+        <div>
+          <label className="block text-sm font-medium mb-3">Stamp design</label>
+          <div className="flex gap-2 flex-wrap">
+            {STAMP_ICONS.map((s) => {
+              const SIcon = s.icon;
+              return (
+                <button
+                  key={s.value}
+                  type="button"
+                  onClick={() => setStampIcon(s.value)}
+                  className={`w-10 h-10 rounded-lg flex items-center justify-center transition-all ${
+                    stampIcon === s.value
+                      ? "ring-2 ring-offset-2 ring-primary bg-primary/10 text-primary scale-110"
+                      : "bg-foreground/5 text-foreground/40 hover:scale-105 hover:bg-foreground/10"
+                  }`}
+                  title={s.label}
+                >
+                  <SIcon className="h-5 w-5" />
+                </button>
+              );
+            })}
+          </div>
         </div>
 
         <div>
@@ -140,7 +237,7 @@ export default function SetupPage() {
                       }`}
                     >
                       {i < 3 ? (
-                        <Sparkles className="h-3.5 w-3.5 text-white drop-shadow-sm" />
+                        <StampIcon className="h-3.5 w-3.5 text-white drop-shadow-sm" />
                       ) : (
                         <span className="text-[10px] font-bold text-white/20">{i + 1}</span>
                       )}

@@ -14,6 +14,27 @@ import {
   Pencil,
   Sparkles,
   X,
+  LinkIcon,
+  Copy,
+  Check,
+  QrCode,
+  Coffee,
+  Scissors,
+  ShoppingBag,
+  Cpu,
+  PawPrint,
+  Flower2,
+  Utensils,
+  Dumbbell,
+  Car,
+  Heart,
+  Star,
+  Gem,
+  Zap,
+  Sun,
+  Moon,
+  Crown,
+  Music,
 } from "lucide-react";
 import { api } from "@/lib/api";
 
@@ -21,6 +42,50 @@ const PRESET_COLORS = [
   "#6C63FF", "#3B82F6", "#10B981", "#F59E0B", "#EF4444",
   "#8B5CF6", "#EC4899", "#14B8A6", "#F97316", "#1F2937",
 ];
+
+const CATEGORIES = [
+  { value: "coffee", label: "Coffee & Tea", icon: Coffee },
+  { value: "food", label: "Food & Drinks", icon: Utensils },
+  { value: "beauty", label: "Beauty & Salon", icon: Scissors },
+  { value: "retail", label: "Retail & Shopping", icon: ShoppingBag },
+  { value: "fitness", label: "Fitness & Gym", icon: Dumbbell },
+  { value: "electronics", label: "Electronics", icon: Cpu },
+  { value: "pets", label: "Pets", icon: PawPrint },
+  { value: "plants", label: "Plants & Garden", icon: Flower2 },
+  { value: "auto", label: "Auto & Car Care", icon: Car },
+  { value: "health", label: "Health & Wellness", icon: Heart },
+  { value: "other", label: "Other", icon: Star },
+];
+
+const STAMP_ICONS = [
+  { value: "sparkles", icon: Sparkles },
+  { value: "star", icon: Star },
+  { value: "heart", icon: Heart },
+  { value: "gem", icon: Gem },
+  { value: "zap", icon: Zap },
+  { value: "gift", icon: Gift },
+  { value: "sun", icon: Sun },
+  { value: "moon", icon: Moon },
+  { value: "crown", icon: Crown },
+  { value: "music", icon: Music },
+  { value: "coffee", icon: Coffee },
+  { value: "flower", icon: Flower2 },
+  { value: "paw", icon: PawPrint },
+  { value: "scissors", icon: Scissors },
+  { value: "dumbbell", icon: Dumbbell },
+];
+
+function getStampIcon(value: string) {
+  return STAMP_ICONS.find((s) => s.value === value)?.icon || Sparkles;
+}
+
+function getCategoryIcon(value: string) {
+  return CATEGORIES.find((c) => c.value === value)?.icon || Star;
+}
+
+function getCategoryLabel(value: string) {
+  return CATEGORIES.find((c) => c.value === value)?.label || "Other";
+}
 
 interface Card {
   id: string;
@@ -43,6 +108,9 @@ interface Program {
   cardColor: string;
   textColor: string;
   isActive: boolean;
+  category?: string;
+  stampIcon?: string;
+  enrollmentCode?: string;
   _count?: { cards: number };
   cards?: Card[];
 }
@@ -56,7 +124,7 @@ export default function ProgramDetailPage() {
   const { data: programData, error: fetchError, isLoading: loading, mutate: mutateProgram } = useSWR<{ program: Program }>(
     programId ? `/api/programs/${programId}` : null,
     {
-      dedupingInterval: 2 * 60 * 1000, // 2 minutes
+      dedupingInterval: 2 * 60 * 1000,
       revalidateOnFocus: true,
     }
   );
@@ -67,12 +135,15 @@ export default function ProgramDetailPage() {
   const [saving, setSaving] = useState(false);
   const [success, setSuccess] = useState("");
   const [error, setError] = useState("");
+  const [copied, setCopied] = useState(false);
 
   // Edit form state
   const [editName, setEditName] = useState("");
   const [editStamps, setEditStamps] = useState(8);
   const [editReward, setEditReward] = useState("");
   const [editColor, setEditColor] = useState("#6C63FF");
+  const [editCategory, setEditCategory] = useState("other");
+  const [editStampIcon, setEditStampIcon] = useState("sparkles");
 
   function startEditing() {
     if (!program) return;
@@ -80,6 +151,8 @@ export default function ProgramDetailPage() {
     setEditStamps(program.stampsRequired);
     setEditReward(program.rewardText);
     setEditColor(program.cardColor);
+    setEditCategory(program.category || "other");
+    setEditStampIcon(program.stampIcon || "sparkles");
     setEditing(true);
     setError("");
     setSuccess("");
@@ -98,6 +171,8 @@ export default function ProgramDetailPage() {
         stampsRequired: editStamps,
         rewardText: editReward,
         cardColor: editColor,
+        category: editCategory,
+        stampIcon: editStampIcon,
       });
 
       if (ok) {
@@ -114,6 +189,14 @@ export default function ProgramDetailPage() {
     } finally {
       setSaving(false);
     }
+  }
+
+  function copyEnrollmentLink() {
+    if (!program?.enrollmentCode) return;
+    const url = `${window.location.origin}/join/${program.enrollmentCode}`;
+    navigator.clipboard.writeText(url);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
   }
 
   if (loading) {
@@ -136,6 +219,8 @@ export default function ProgramDetailPage() {
   const customerCount = program._count?.cards || program.cards?.length || 0;
   const totalStamps = program.cards?.reduce((sum, c) => sum + c.totalStamps, 0) || 0;
   const totalRewards = program.cards?.reduce((sum, c) => sum + c.rewardsEarned, 0) || 0;
+  const StampIconComponent = getStampIcon(editing ? editStampIcon : (program.stampIcon || "sparkles"));
+  const CategoryIcon = getCategoryIcon(program.category || "other");
 
   return (
     <div className="max-w-3xl mx-auto">
@@ -148,9 +233,12 @@ export default function ProgramDetailPage() {
           <ArrowLeft className="h-5 w-5 text-foreground/50" />
         </Link>
         <div className="flex-1">
-          <h1 className="text-2xl font-bold">{program.name}</h1>
+          <div className="flex items-center gap-2">
+            <CategoryIcon className="h-5 w-5 text-foreground/40" />
+            <h1 className="text-2xl font-bold">{program.name}</h1>
+          </div>
           <p className="text-sm text-foreground/40">
-            {program.stampsRequired} stamps &rarr; {program.rewardText}
+            {getCategoryLabel(program.category || "other")} &middot; {program.stampsRequired} stamps &rarr; {program.rewardText}
           </p>
         </div>
         {!editing && (
@@ -166,6 +254,31 @@ export default function ProgramDetailPage() {
 
       {success && (
         <div className="text-sm text-success bg-success/10 px-3 py-2 rounded-lg mb-4">{success}</div>
+      )}
+
+      {/* Enrollment link */}
+      {!editing && program.enrollmentCode && (
+        <div className="border border-foreground/10 rounded-xl p-4 mb-6">
+          <div className="flex items-center gap-2 mb-2">
+            <LinkIcon className="h-4 w-4 text-primary" />
+            <span className="text-sm font-medium">Enrollment link</span>
+          </div>
+          <p className="text-xs text-foreground/40 mb-3">
+            Share this link or show the QR code so customers can join your program themselves.
+          </p>
+          <div className="flex gap-2">
+            <div className="flex-1 bg-foreground/5 rounded-lg px-3 py-2 text-sm font-mono text-foreground/60 truncate">
+              {typeof window !== "undefined" ? `${window.location.origin}/join/${program.enrollmentCode}` : `/join/${program.enrollmentCode}`}
+            </div>
+            <button
+              onClick={copyEnrollmentLink}
+              className="flex items-center gap-1.5 px-3 py-2 bg-primary text-white rounded-lg text-sm font-medium hover:bg-primary-dark transition shrink-0"
+            >
+              {copied ? <Check className="h-4 w-4" /> : <Copy className="h-4 w-4" />}
+              {copied ? "Copied" : "Copy"}
+            </button>
+          </div>
+        </div>
       )}
 
       {/* Card preview */}
@@ -198,7 +311,7 @@ export default function ProgramDetailPage() {
                       }`}
                     >
                       {i < filledCount ? (
-                        <Sparkles className="h-3.5 w-3.5 text-white drop-shadow-sm" />
+                        <StampIconComponent className="h-3.5 w-3.5 text-white drop-shadow-sm" />
                       ) : (
                         <span className="text-[10px] font-bold text-white/20">{i + 1}</span>
                       )}
@@ -261,6 +374,31 @@ export default function ProgramDetailPage() {
             />
           </div>
 
+          {/* Category */}
+          <div>
+            <label className="block text-sm font-medium mb-3">Category</label>
+            <div className="grid grid-cols-3 sm:grid-cols-4 gap-2">
+              {CATEGORIES.map((cat) => {
+                const CatIcon = cat.icon;
+                return (
+                  <button
+                    key={cat.value}
+                    type="button"
+                    onClick={() => setEditCategory(cat.value)}
+                    className={`flex flex-col items-center gap-1.5 p-2.5 rounded-xl border text-xs font-medium transition-all ${
+                      editCategory === cat.value
+                        ? "border-primary bg-primary/5 text-primary"
+                        : "border-foreground/10 text-foreground/50 hover:border-foreground/20"
+                    }`}
+                  >
+                    <CatIcon className="h-4 w-4" />
+                    {cat.label}
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+
           <div>
             <label className="block text-sm font-medium mb-1.5">Stamps required</label>
             <input
@@ -282,6 +420,30 @@ export default function ProgramDetailPage() {
               className="w-full px-3 py-2 rounded-lg border border-foreground/15 bg-transparent text-sm focus:outline-none focus:ring-2 focus:ring-primary/50"
               required
             />
+          </div>
+
+          {/* Stamp icon */}
+          <div>
+            <label className="block text-sm font-medium mb-3">Stamp design</label>
+            <div className="flex gap-2 flex-wrap">
+              {STAMP_ICONS.map((s) => {
+                const SIcon = s.icon;
+                return (
+                  <button
+                    key={s.value}
+                    type="button"
+                    onClick={() => setEditStampIcon(s.value)}
+                    className={`w-9 h-9 rounded-lg flex items-center justify-center transition-all ${
+                      editStampIcon === s.value
+                        ? "ring-2 ring-offset-2 ring-primary bg-primary/10 text-primary scale-110"
+                        : "bg-foreground/5 text-foreground/40 hover:scale-105"
+                    }`}
+                  >
+                    <SIcon className="h-4 w-4" />
+                  </button>
+                );
+              })}
+            </div>
           </div>
 
           <div>

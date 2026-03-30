@@ -37,6 +37,9 @@ model Program {
   cardColor       String   @default("#6C63FF") @map("card_color")
   textColor       String   @default("#FFFFFF") @map("text_color")
   iconUrl         String?  @map("icon_url")
+  category        String?  @default("other")
+  stampIcon       String?  @default("sparkles") @map("stamp_icon")
+  enrollmentCode  String?  @unique @map("enrollment_code")
   createdAt       DateTime @default(now()) @map("created_at")
 
   merchant Merchant @relation(fields: [merchantId], references: [id], onDelete: Cascade)

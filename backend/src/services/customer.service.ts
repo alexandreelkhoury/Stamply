@@ -47,4 +47,34 @@ export const customerService = {
 
     return cardRepo.create({ customerId: customer.id, programId, qrCode });
   },
+
+  async createWithCardPublic(merchantId: string, phone: string, name: string | null, programId: string) {
+    let formattedPhone: string;
+    try {
+      formattedPhone = formatPhone(phone);
+    } catch {
+      throw new BadRequestError('Invalid phone number (7-16 digits required)');
+    }
+
+    // Find or create customer
+    let customer = await customerRepo.findByPhone(formattedPhone);
+    if (!customer) {
+      customer = await customerRepo.create({ phone: formattedPhone, name });
+    }
+
+    // Check if card already exists
+    const existingCard = await cardRepo.findByCustomerAndProgram(customer.id, programId);
+    if (existingCard) {
+      // Return existing card instead of error for self-service flow
+      return existingCard;
+    }
+
+    // Generate unique QR code
+    let qrCode = generateQrCode();
+    while (await cardRepo.findByQrCode(qrCode)) {
+      qrCode = generateQrCode();
+    }
+
+    return cardRepo.create({ customerId: customer.id, programId, qrCode });
+  },
 };

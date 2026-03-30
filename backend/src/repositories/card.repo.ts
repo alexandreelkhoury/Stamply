@@ -26,6 +26,8 @@ export const cardRepo = {
             rewardText: true,
             cardColor: true,
             textColor: true,
+            stampIcon: true,
+            merchant: { select: { businessName: true, logoUrl: true } },
           },
         },
       },

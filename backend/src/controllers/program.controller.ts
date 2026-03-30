@@ -44,7 +44,7 @@ export const programController = {
 
   async create(req: AuthRequest, res: Response) {
     try {
-      const { name, stampsRequired, rewardText, cardColor, textColor } = req.body;
+      const { name, stampsRequired, rewardText, cardColor, textColor, category, stampIcon } = req.body;
       if (!name || !stampsRequired || !rewardText) {
         throw new BadRequestError('Name, stampsRequired, and rewardText are required');
       }
@@ -55,6 +55,8 @@ export const programController = {
         rewardText,
         cardColor,
         textColor,
+        category,
+        stampIcon,
       });
       res.status(201).json({ program });
     } catch (error) {
@@ -70,7 +72,7 @@ export const programController = {
   async update(req: AuthRequest, res: Response) {
     try {
       const id = req.params.id as string;
-      const { name, stampsRequired, rewardText, cardColor, textColor, isActive } = req.body;
+      const { name, stampsRequired, rewardText, cardColor, textColor, isActive, category, stampIcon } = req.body;
 
       const data: Record<string, unknown> = {};
       if (name !== undefined) data.name = name;
@@ -79,6 +81,8 @@ export const programController = {
       if (cardColor !== undefined) data.cardColor = cardColor;
       if (textColor !== undefined) data.textColor = textColor;
       if (isActive !== undefined) data.isActive = isActive;
+      if (category !== undefined) data.category = category;
+      if (stampIcon !== undefined) data.stampIcon = stampIcon;
 
       const program = await programService.update(id, req.merchant!.id, data);
       res.json({ program });

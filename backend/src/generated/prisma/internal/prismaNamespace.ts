@@ -845,6 +845,9 @@ export const ProgramScalarFieldEnum = {
   cardColor: 'cardColor',
   textColor: 'textColor',
   iconUrl: 'iconUrl',
+  category: 'category',
+  stampIcon: 'stampIcon',
+  enrollmentCode: 'enrollmentCode',
   createdAt: 'createdAt'
 } as const
 
